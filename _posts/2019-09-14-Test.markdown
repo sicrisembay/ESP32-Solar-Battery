@@ -1,0 +1,8 @@
+---
+layout: post
+title: Test Blog Entry
+subtitle:
+author: Sicris Rey Embay
+---
+
+This is a test blog entry.

@@ -1,0 +1,16 @@
+# Site settings
+title: Sicris Rey Embay
+email: sicris.embay@gmail.com
+description: "Explorations in Embedded System Application"
+baseurl: ""
+url: ""
+twitter_username: ""
+github_username:  sicrisembay
+facebook_username: sicris.embay
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+paginate: 5
+exclude: ["node_modules"]
