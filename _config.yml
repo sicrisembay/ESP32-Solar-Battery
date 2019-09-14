@@ -2,7 +2,7 @@
 title: Sicris Rey Embay
 email: sicris.embay@gmail.com
 description: "Explorations in Embedded System Application"
-baseurl: "ESP32-Solar-Battery"
+baseurl: "/ESP32-Solar-Battery"
 url: "http://sicrisembay.github.io/ESP32-Solar-Battery"
 twitter_username: ""
 github_username:  sicrisembay
