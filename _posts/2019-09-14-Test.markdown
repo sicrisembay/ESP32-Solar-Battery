@@ -1,9 +1,17 @@
 ---
 layout: post
 title: "Test Blog Entry"
-subtitle: "This is a test blog entry"
+subtitle: "I am learning on how to create and maintain a blog for this project."
 author: "Sicris Rey Embay"
-header-img: "img/post-bg.jpg"
+header-img: "assets/images/2019-09-14/IMG_20190914_174643_1.jpg"
 ---
 
-This is a test blog entry.
+This is a test blog entry as I am learning on how to create and maintain a blog page for this project.  The plan is to
+post a weekly update on this project and at the same time, I will try to fix bugs on this blog page (i.e. I can't
+figure out why the nav bar is not behaving as expected).
+
+I am very new to this but there are tons of information in the web that really help me to jump start this blog page.
+
+Some of the websites that I found very useful:
+* [Setting up a Jekyll blog on Github Pages](https://michelleful.github.io/code-blog/2014/02/28/setting-up-a-jekyll-blog-on-github-pages/)
+* [startbootstrap-clean-blog](https://github.com/BlackrockDigital/startbootstrap-clean-blog)
