@@ -1,8 +1,9 @@
 ---
 layout: post
-title: Test Blog Entry
-subtitle:
-author: Sicris Rey Embay
+title: "Test Blog Entry"
+subtitle: "This is a test blog entry"
+author: "Sicris Rey Embay"
+header-img: "img/post-bg.jpg"
 ---
 
 This is a test blog entry.
