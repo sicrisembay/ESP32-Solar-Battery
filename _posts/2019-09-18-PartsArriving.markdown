@@ -10,7 +10,7 @@ header-img: "assets/images/2019-09-18/4.jpg"
 <p>The first part that I received is the LiFePo4 battery.  I ordered 3pcs from <a href="https://www.aliexpress.com/store/217753?spm=a2g0s.9042311.0.0.496a4c4dTNXf1n">
 Aliexpress</a> at SG$17.34 (plus SG$11.83 shipping cost).  It took 10 days for the package to arrive in Singapore.  It was packed nicely.</p>
 
-<image src="{{ site.baseurl }}/assets/images/2019-09-18/1.png" width="100%" alt="Package containing the battery"/>
+<image src="{{ site.baseurl }}/assets/images/2019-09-18/1.jpg" width="100%" alt="Package containing the battery"/>
 
 <image src="{{ site.baseurl }}/assets/images/2019-09-18/2.jpg" width="100%" alt="32700 LiFePo4"/>
 
