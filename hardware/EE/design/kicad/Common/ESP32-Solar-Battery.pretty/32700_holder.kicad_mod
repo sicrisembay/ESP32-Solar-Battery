@@ -1,4 +1,4 @@
-(module 32700_holder (layer F.Cu) (tedit 5D7DD98D)
+(module 32700_holder (layer F.Cu) (tedit 5D8F0964)
   (fp_text reference REF** (at -0.254 2.786) (layer F.SilkS)
     (effects (font (size 1 1) (thickness 0.15)))
   )
@@ -42,27 +42,27 @@
       (gr_poly (pts
          (xy -4.0028 -0.001) (xy 3.9982 -0.001) (xy 3.9982 16.1534) (xy -4.0282 16.1788)) (width 0.01))
     ))
-  (model C:/msys32/home/Sicris/01_project/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partA.step
+  (model D:/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partA.step
     (offset (xyz 63 0 21))
     (scale (xyz 1 1 1))
     (rotate (xyz -90 0 -90))
   )
-  (model C:/msys32/home/Sicris/01_project/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partA.step
+  (model D:/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partA.step
     (offset (xyz 18 0 21))
     (scale (xyz 1 1 1))
     (rotate (xyz -90 0 90))
   )
-  (model C:/msys32/home/Sicris/01_project/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery.step
+  (model D:/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery.step
     (offset (xyz 6 -16 5))
     (scale (xyz 1 1 1))
     (rotate (xyz 0 0 0))
   )
-  (model C:/msys32/home/Sicris/01_project/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partB.step
+  (model D:/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partB.step
     (offset (xyz 18 0 21))
     (scale (xyz 1 1 1))
     (rotate (xyz 90 180 -90))
   )
-  (model C:/msys32/home/Sicris/01_project/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partB.step
+  (model D:/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partB.step
     (offset (xyz 73 0 21))
     (scale (xyz 1 1 1))
     (rotate (xyz 90 180 -90))

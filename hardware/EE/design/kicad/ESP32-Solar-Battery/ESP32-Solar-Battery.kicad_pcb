@@ -1,4 +1,4 @@
-(kicad_pcb (version 20171130) (host pcbnew "(5.1.2)-2")
+(kicad_pcb (version 20171130) (host pcbnew "(5.1.2)-1")
 
   (general
     (thickness 1.6)
@@ -141,7 +141,7 @@
     (add_net Solar_V+)
   )
 
-  (module ESP32-Solar-Battery:32700_holder (layer F.Cu) (tedit 5D7DD98D) (tstamp 5D793FFA)
+  (module ESP32-Solar-Battery:32700_holder (layer F.Cu) (tedit 5D8F0964) (tstamp 5D793FFA)
     (at 120.5103 138.9253 90)
     (path /5D7EC498/5D81A7E4)
     (fp_text reference J301 (at -0.254 2.786 90) (layer F.SilkS)
@@ -191,27 +191,27 @@
       (net 2 "Net-(C301-Pad2)"))
     (pad 2 thru_hole circle (at 70.5 8 90) (size 8 8) (drill 3) (layers *.Cu *.Mask)
       (net 1 PB+))
-    (model C:/msys32/home/Sicris/01_project/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partA.step
+    (model D:/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partA.step
       (offset (xyz 63 0 21))
       (scale (xyz 1 1 1))
       (rotate (xyz -90 0 -90))
     )
-    (model C:/msys32/home/Sicris/01_project/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partA.step
+    (model D:/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partA.step
       (offset (xyz 18 0 21))
       (scale (xyz 1 1 1))
       (rotate (xyz -90 0 90))
     )
-    (model C:/msys32/home/Sicris/01_project/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery.step
+    (model D:/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery.step
       (offset (xyz 6 -16 5))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
-    (model C:/msys32/home/Sicris/01_project/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partB.step
+    (model D:/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partB.step
       (offset (xyz 18 0 21))
       (scale (xyz 1 1 1))
       (rotate (xyz 90 180 -90))
     )
-    (model C:/msys32/home/Sicris/01_project/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partB.step
+    (model D:/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.3dshapes/battery_holder_partB.step
       (offset (xyz 73 0 21))
       (scale (xyz 1 1 1))
       (rotate (xyz 90 180 -90))
