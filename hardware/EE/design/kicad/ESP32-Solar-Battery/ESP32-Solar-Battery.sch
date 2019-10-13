@@ -4,7 +4,7 @@ EELAYER 29 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 1 4
+Sheet 1 3
 Title ""
 Date ""
 Rev ""
@@ -21,13 +21,7 @@ F0 "LiFePO4_Solar" 50
 F1 "LiFePO4_Solar.sch" 50
 $EndSheet
 $Sheet
-S 3590 1440 1260 890 
-U 5D7EC498
-F0 "LiFePO4_Batt" 50
-F1 "LiFePO4_Batt.sch" 50
-$EndSheet
-$Sheet
-S 4970 1440 1240 900 
+S 3600 1430 1240 900 
 U 5D7A2132
 F0 "Controller" 50
 F1 "Controller.sch" 50
