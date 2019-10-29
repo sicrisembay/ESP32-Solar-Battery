@@ -60,17 +60,6 @@ F 3 "~" H 3720 2640 50  0001 C CNN
 	1    3720 2640
 	1    0    0    -1  
 $EndComp
-$Comp
-L Device:Jumper JP401
-U 1 1 5D7C237F
-P 3180 2790
-F 0 "JP401" V 3226 2703 50  0000 R CNN
-F 1 "RESET" V 3135 2703 50  0000 R CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 3180 2790 50  0001 C CNN
-F 3 "~" H 3180 2790 50  0001 C CNN
-	1    3180 2790
-	0    -1   -1   0   
-$EndComp
 Wire Wire Line
 	5300 2410 5100 2410
 Wire Wire Line
@@ -139,19 +128,6 @@ F 3 "" H 3720 3180 50  0001 C CNN
 	1    3720 3180
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	3180 2490 3180 2410
-Wire Wire Line
-	3180 2410 3720 2410
-Wire Wire Line
-	3180 3090 3180 3110
-Wire Wire Line
-	3180 3110 3720 3110
-Wire Wire Line
-	3720 3110 3720 3180
-Wire Wire Line
-	3720 2790 3720 3110
-Connection ~ 3720 3110
 $Comp
 L power:GND #PWR0403
 U 1 1 5D7C6670
@@ -165,38 +141,6 @@ F 3 "" H 5900 5290 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	5900 5010 5900 5290
-$Comp
-L Device:Jumper JP402
-U 1 1 5D7C744C
-P 7040 1860
-F 0 "JP402" V 7086 1773 50  0000 R CNN
-F 1 "RESET" V 6995 1773 50  0000 R CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 7040 1860 50  0001 C CNN
-F 3 "~" H 7040 1860 50  0001 C CNN
-	1    7040 1860
-	0    -1   -1   0   
-$EndComp
-$Comp
-L power:GND #PWR0404
-U 1 1 5D7C7DDD
-P 6680 1690
-F 0 "#PWR0404" H 6680 1440 50  0001 C CNN
-F 1 "GND" H 6685 1517 50  0000 C CNN
-F 2 "" H 6680 1690 50  0001 C CNN
-F 3 "" H 6680 1690 50  0001 C CNN
-	1    6680 1690
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	6500 2410 7040 2410
-Wire Wire Line
-	7040 2410 7040 2160
-Wire Wire Line
-	7040 1560 7040 1380
-Wire Wire Line
-	7040 1380 6680 1380
-Wire Wire Line
-	6680 1380 6680 1690
 Text GLabel 7500 1010 0    50   Input ~ 0
 VDD_3V2
 $Comp
@@ -231,39 +175,6 @@ Wire Wire Line
 	7860 2060 7860 2410
 Wire Wire Line
 	7860 2410 7190 2410
-Connection ~ 7040 2410
-$Comp
-L Connector_Generic:Conn_01x03 J401
-U 1 1 5D7CC172
-P 8660 2610
-F 0 "J401" H 8578 2285 50  0000 C CNN
-F 1 "Program" H 8578 2376 50  0000 C CNN
-F 2 "Connector_JST:JST_PH_B3B-PH-K_1x03_P2.00mm_Vertical" H 8660 2610 50  0001 C CNN
-F 3 "~" H 8660 2610 50  0001 C CNN
-	1    8660 2610
-	1    0    0    1   
-$EndComp
-Wire Wire Line
-	6500 2510 7270 2510
-Wire Wire Line
-	8010 2710 8010 2610
-Wire Wire Line
-	8010 2610 8460 2610
-$Comp
-L power:GND #PWR0405
-U 1 1 5D7CEEF1
-P 8400 2770
-F 0 "#PWR0405" H 8400 2520 50  0001 C CNN
-F 1 "GND" H 8405 2597 50  0000 C CNN
-F 2 "" H 8400 2770 50  0001 C CNN
-F 3 "" H 8400 2770 50  0001 C CNN
-	1    8400 2770
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	8460 2710 8400 2710
-Wire Wire Line
-	8400 2710 8400 2770
 NoConn ~ 5300 3610
 NoConn ~ 5300 3710
 NoConn ~ 5300 3810
@@ -288,7 +199,7 @@ VDD_3V2
 Wire Wire Line
 	3760 4070 3990 4070
 Text GLabel 3920 4170 2    50   Input ~ 0
-ESP32_3
+EN
 Text GLabel 5030 2610 0    50   Input ~ 0
 ESP32_4
 Text GLabel 5030 2710 0    50   Input ~ 0
@@ -322,9 +233,9 @@ Wire Wire Line
 Wire Wire Line
 	6720 4110 6500 4110
 Text GLabel 6720 3210 2    50   Input ~ 0
-ESP32_13
+TMS
 Text GLabel 6720 3010 2    50   Input ~ 0
-ESP32_14
+TDI
 Wire Wire Line
 	6500 3010 6720 3010
 Wire Wire Line
@@ -359,9 +270,9 @@ ESP32_11
 Text GLabel 3920 5070 2    50   Input ~ 0
 ESP32_12
 Text GLabel 3920 5170 2    50   Input ~ 0
-ESP32_13
+TMS
 Text GLabel 3920 5270 2    50   Input ~ 0
-ESP32_14
+TDI
 Wire Wire Line
 	3760 5270 3920 5270
 Wire Wire Line
@@ -411,15 +322,13 @@ $EndComp
 Wire Wire Line
 	3760 5370 3940 5370
 Text GLabel 5040 2340 0    50   Input ~ 0
-ESP32_3
+EN
 Text GLabel 6720 3110 2    50   Input ~ 0
-ESP32_16
-Wire Wire Line
-	6500 2710 7270 2710
+TCK
 Wire Wire Line
 	6720 3110 6500 3110
 Text GLabel 3920 5470 2    50   Input ~ 0
-ESP32_16
+TCK
 Wire Wire Line
 	3760 5470 3920 5470
 $Comp
@@ -445,7 +354,7 @@ F 3 "" H 8350 4020 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	8350 4020 8520 4020
+	8350 4020 8440 4020
 Text GLabel 6720 4010 2    50   Input ~ 0
 ESP32_37
 Text GLabel 8320 4120 0    50   Input ~ 0
@@ -454,38 +363,22 @@ Text GLabel 6720 3910 2    50   Input ~ 0
 ESP32_36
 Text GLabel 8320 4220 0    50   Input ~ 0
 ESP32_36
-Text GLabel 7310 2580 2    50   Input ~ 0
-ESP32_35
 Text GLabel 8320 4320 0    50   Input ~ 0
-ESP32_35
-Text GLabel 7310 2780 2    50   Input ~ 0
-ESP32_34
+TXD0
+Text GLabel 6720 2710 2    50   Input ~ 0
+RXD0
 Text GLabel 6720 3810 2    50   Input ~ 0
 ESP32_33
 Text GLabel 8320 4520 0    50   Input ~ 0
 ESP32_33
 Text GLabel 8320 4420 0    50   Input ~ 0
-ESP32_34
+RXD0
 Wire Wire Line
 	6720 4010 6500 4010
 Wire Wire Line
 	6500 3910 6720 3910
 Wire Wire Line
 	6500 3810 6720 3810
-Wire Wire Line
-	7310 2580 7270 2580
-Wire Wire Line
-	7270 2580 7270 2510
-Connection ~ 7270 2510
-Wire Wire Line
-	7270 2510 8460 2510
-Wire Wire Line
-	7310 2780 7270 2780
-Wire Wire Line
-	7270 2780 7270 2710
-Connection ~ 7270 2710
-Wire Wire Line
-	7270 2710 8010 2710
 Wire Wire Line
 	8320 4120 8520 4120
 Wire Wire Line
@@ -496,7 +389,6 @@ Wire Wire Line
 	8320 4420 8520 4420
 Wire Wire Line
 	8320 4520 8520 4520
-NoConn ~ 8520 4620
 Text GLabel 6720 3710 2    50   Input ~ 0
 ESP32_31
 Text GLabel 8320 4720 0    50   Input ~ 0
@@ -522,15 +414,13 @@ ESP32_26
 Text GLabel 8320 5220 0    50   Input ~ 0
 ESP32_26
 Text GLabel 7250 2310 2    50   Input ~ 0
-ESP32_25
+BOOT
 Text GLabel 8320 5320 0    50   Input ~ 0
-ESP32_25
-Text GLabel 6720 2610 2    50   Input ~ 0
-ESP32_24
+BOOT
 Text GLabel 6720 3310 2    50   Input ~ 0
-ESP32_23
+TDO
 Text GLabel 8320 5520 0    50   Input ~ 0
-ESP32_23
+TDO
 Text GLabel 8320 5420 0    50   Input ~ 0
 ESP32_24
 Wire Wire Line
@@ -538,8 +428,6 @@ Wire Wire Line
 Wire Wire Line
 	7190 2310 7190 2410
 Connection ~ 7190 2410
-Wire Wire Line
-	7190 2410 7040 2410
 Wire Wire Line
 	6500 2610 6720 2610
 Wire Wire Line
@@ -574,4 +462,157 @@ Wire Wire Line
 	8320 5420 8520 5420
 Wire Wire Line
 	8320 5520 8520 5520
+$Comp
+L Connector_Generic:Conn_01x06 J301
+U 1 1 5DA672DF
+P 1520 3510
+F 0 "J301" H 1438 2985 50  0000 C CNN
+F 1 "Program" H 1438 3076 50  0000 C CNN
+F 2 "Connector_PinHeader_1.27mm:PinHeader_2x03_P1.27mm_Vertical" H 1520 3510 50  0001 C CNN
+F 3 "~" H 1520 3510 50  0001 C CNN
+	1    1520 3510
+	-1   0    0    1   
+$EndComp
+Text GLabel 1850 3710 2    50   Input ~ 0
+EN
+Wire Wire Line
+	1720 3710 1850 3710
+Text GLabel 2500 3610 2    50   Input ~ 0
+VDD_3V2
+Text GLabel 1850 3510 2    50   Input ~ 0
+TXD0
+Wire Wire Line
+	1850 3510 1720 3510
+$Comp
+L power:GND #PWR0105
+U 1 1 5DA733C7
+P 1860 3410
+F 0 "#PWR0105" H 1860 3160 50  0001 C CNN
+F 1 "GND" V 1860 3230 50  0000 C CNN
+F 2 "" H 1860 3410 50  0001 C CNN
+F 3 "" H 1860 3410 50  0001 C CNN
+	1    1860 3410
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	1860 3410 1720 3410
+Text GLabel 1850 3310 2    50   Input ~ 0
+RXD0
+Wire Wire Line
+	1850 3310 1720 3310
+Text GLabel 1850 3210 2    50   Input ~ 0
+BOOT
+Wire Wire Line
+	1850 3210 1720 3210
+Wire Wire Line
+	3720 2790 3720 3180
+Wire Wire Line
+	6500 2410 7190 2410
+Text GLabel 6720 2510 2    50   Input ~ 0
+TXD0
+Wire Wire Line
+	6500 2510 6720 2510
+Wire Wire Line
+	6500 2710 6720 2710
+$Comp
+L Connector_Generic:Conn_02x05_Odd_Even J302
+U 1 1 5DABE691
+P 2040 4760
+F 0 "J302" H 2090 5177 50  0000 C CNN
+F 1 "jtag" H 2090 5086 50  0000 C CNN
+F 2 "Connector_PinHeader_1.27mm:PinHeader_2x05_P1.27mm_Vertical" H 2040 4760 50  0001 C CNN
+F 3 "~" H 2040 4760 50  0001 C CNN
+	1    2040 4760
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0106
+U 1 1 5DAC001D
+P 1750 5090
+F 0 "#PWR0106" H 1750 4840 50  0001 C CNN
+F 1 "GND" V 1750 4910 50  0000 C CNN
+F 2 "" H 1750 5090 50  0001 C CNN
+F 3 "" H 1750 5090 50  0001 C CNN
+	1    1750 5090
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1840 4660 1750 4660
+Wire Wire Line
+	1750 4660 1750 4760
+Wire Wire Line
+	1840 4960 1750 4960
+Connection ~ 1750 4960
+Wire Wire Line
+	1750 4960 1750 5090
+Wire Wire Line
+	1840 4860 1750 4860
+Connection ~ 1750 4860
+Wire Wire Line
+	1750 4860 1750 4960
+Wire Wire Line
+	1840 4760 1750 4760
+Connection ~ 1750 4760
+Wire Wire Line
+	1750 4760 1750 4860
+NoConn ~ 2340 4960
+$Comp
+L Device:R R301
+U 1 1 5DAD1D70
+P 1750 4410
+F 0 "R301" H 1820 4456 50  0000 L CNN
+F 1 "100" H 1820 4365 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 1680 4410 50  0001 C CNN
+F 3 "~" H 1750 4410 50  0001 C CNN
+	1    1750 4410
+	-1   0    0    1   
+$EndComp
+Text GLabel 1680 4120 0    50   Input ~ 0
+VDD_3V2
+Wire Wire Line
+	1680 4120 1750 4120
+Wire Wire Line
+	1750 4120 1750 4260
+Wire Wire Line
+	1750 4560 1840 4560
+Text GLabel 2430 4560 2    50   Input ~ 0
+TMS
+Wire Wire Line
+	2430 4560 2340 4560
+Text GLabel 2430 4860 2    50   Input ~ 0
+TDI
+Wire Wire Line
+	2430 4860 2340 4860
+Text GLabel 2430 4660 2    50   Input ~ 0
+TCK
+Wire Wire Line
+	2430 4660 2340 4660
+Text GLabel 6720 2610 2    50   Input ~ 0
+ESP32_24
+Text GLabel 2430 4760 2    50   Input ~ 0
+TDO
+Wire Wire Line
+	2430 4760 2340 4760
+$Comp
+L Device:R R302
+U 1 1 5DAF88F8
+P 2270 3610
+F 0 "R302" V 2360 3520 50  0000 L CNN
+F 1 "100" V 2170 3570 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 2200 3610 50  0001 C CNN
+F 3 "~" H 2270 3610 50  0001 C CNN
+	1    2270 3610
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	1720 3610 2120 3610
+Wire Wire Line
+	2500 3610 2420 3610
+Wire Wire Line
+	8440 4020 8440 4620
+Wire Wire Line
+	8440 4620 8520 4620
+Connection ~ 8440 4020
+Wire Wire Line
+	8440 4020 8520 4020
 $EndSCHEMATC
