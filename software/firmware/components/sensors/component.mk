@@ -1,0 +1,8 @@
+COMPONENT_OBJS += ESP32_Sensor/common/i2c_interface.o
+COMPONENT_SRCDIRS += ESP32_Sensor/common
+
+ifeq ($(CONFIG_SENSOR_INA219), y)
+COMPONENT_ADD_INCLUDEDIRS += ESP32_Sensor
+COMPONENT_OBJS += ESP32_Sensor/ina219/ina219.o
+COMPONENT_SRCDIRS += ESP32_Sensor/ina219
+endif
