@@ -1,0 +1,8 @@
+[submodule "software/firmware/components/sensors/ESP32_Sensor"]
+	path = software/firmware/components/sensors/ESP32_Sensor
+	url = https://github.com/sicrisembay/ESP32_Sensor.git
+	branch = master
+[submodule "software/firmware/components/esp-idf"]
+	path = software/firmware/components/esp-idf
+	url = https://github.com/espressif/esp-idf.git
+	branch = release/v3.3
