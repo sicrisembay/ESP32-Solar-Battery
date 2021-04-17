@@ -20,5 +20,7 @@ This is a power measurement test using three INA219 devices.  Measured power is 
 3. Build
    `$ make -j8
 
-   
+## Note
+1. You may need to install ESP-IDF tools
+   `$FIRMWARE_PATH/components/esp-idf/install.sh`
 

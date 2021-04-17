@@ -28,24 +28,23 @@ void app_main()
                 ina219_get_bus_voltage(0, &retval),
                 ina219_get_current(0, &retval),
                 ina219_get_power(0, &retval));
+        ESP_LOGI(TAG, "%s", ina219Str);
 #endif
 #if(CONFIG_INA219_DEVICE_COUNT >= 2)
         snprintf(ina219Str, sizeof(ina219Str) - 1,
-                "%s, Dev2 (%0.2fV, %0.3fA, %0.3fW)",
-                ina219Str,
+                "Dev2 (%0.2fV, %0.3fA, %0.3fW)",
                 ina219_get_bus_voltage(1, &retval),
                 ina219_get_current(1, &retval),
                 ina219_get_power(1, &retval));
+        ESP_LOGI(TAG, "%s", ina219Str);
 #endif
 #if(CONFIG_INA219_DEVICE_COUNT >= 3)
         snprintf(ina219Str, sizeof(ina219Str) - 1,
-                "%s, Dev3 (%0.2fV, %0.3fA, %0.3fW)",
-                ina219Str,
+                "Dev3 (%0.2fV, %0.3fA, %0.3fW)",
                 ina219_get_bus_voltage(2, &retval),
                 ina219_get_current(2, &retval),
                 ina219_get_power(2, &retval));
-#endif
-
         ESP_LOGI(TAG, "%s", ina219Str);
+#endif
     }
 }

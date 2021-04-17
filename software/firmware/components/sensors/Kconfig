@@ -1,6 +1,5 @@
 menu "ESP32 Sensor Configuration"
 
 source "${FIRMWARE_PATH}/components/sensors/ESP32_Sensor/Kconfig"
-source "${FIRMWARE_PATH}/components/sensors/ESP32_Sensor/ina219/Kconfig"
 
 endmenu
