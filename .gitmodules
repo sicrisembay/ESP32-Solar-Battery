@@ -6,3 +6,6 @@
 	path = software/firmware/components/esp-idf
 	url = https://github.com/espressif/esp-idf.git
 	branch = release/v3.3
+[submodule "software/firmware/components/sensors/ULP_Sensor"]
+	path = software/firmware/components/sensors/ULP_Sensor
+	url = https://github.com/sicrisembay/ULP_Sensor.git
