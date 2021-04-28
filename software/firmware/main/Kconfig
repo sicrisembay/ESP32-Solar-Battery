@@ -1,0 +1,8 @@
+menu "Project Configuration"
+
+menu "Sensor Configuration"
+source "$(ESP32_SENSOR_PATH)/Kconfig"
+source "$(ULP_SENSOR_PATH)/Kconfig"
+endmenu # "Sensor Configuration"
+
+endmenu # "Project Configuration"

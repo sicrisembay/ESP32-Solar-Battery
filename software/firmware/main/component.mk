@@ -1,0 +1,3 @@
+ifdef CONFIG_QPC_QSPY_ENABLE
+CFLAGS += -DQ_SPY
+endif
