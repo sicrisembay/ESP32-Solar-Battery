@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model version="4.5.0" links="0">
+ <framework name="qpc"/>
+ <package file="./../components/monitor/monitor.qmp"/>
+ <package file="./../components/iot/iot.qmp"/>
+</model>

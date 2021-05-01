@@ -13,3 +13,6 @@
 	path = software/firmware/components/qpc
 	url = https://github.com/sicrisembay/qpc.git
 	branch = esp32_support
+[submodule "software/firmware/components/esp-aws-iot"]
+	path = software/firmware/components/esp-aws-iot
+	url = https://github.com/espressif/esp-aws-iot.git

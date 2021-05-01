@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package name="iot" stereotype="0x02">
+ <package file="./../components/iot/wifi/wifi.qmp"/>
+ <package file="./../components/iot/mqtt_client/mqtt_client.qmp"/>
+ <operation name="iot_ctor" type="void" visibility="0x00" properties="0x00">
+  <code>/* Call AO constructors */
+iot_wifi_ctor();
+iot_mqtt_client_ctor();</code>
+ </operation>
+ <directory name=".">
+  <file name="iot.h">
+   <text>#ifndef _IOT_H_
+#define _IOT_H_
+
+$declare(iot::iot_ctor)
+
+#endif /* _IOT_H_ */
+</text>
+  </file>
+  <file name="iot.c">
+   <text>#include &quot;freertos/FreeRTOS.h&quot;
+#include &quot;freertos/task.h&quot;
+#include &quot;freertos/queue.h&quot;
+#include &quot;esp_log.h&quot;
+#include &quot;qpc.h&quot;
+#if defined(CONFIG_QPC_QSPY_ENABLE)
+#include &quot;qs.h&quot;
+#endif /* #if defined(CONFIG_QPC_QSPY_ENABLE) */
+
+#include &quot;iot.h&quot;
+#include &quot;iot_wifi.h&quot;
+#include &quot;iot_mqtt_client.h&quot;
+
+$define(iot::iot_ctor)
+</text>
+  </file>
+ </directory>
+</package>

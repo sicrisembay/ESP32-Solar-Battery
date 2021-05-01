@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package name="monitor" stereotype="0x02">
+ <directory name=".">
+  <file name="monitor.c"/>
+  <file name="monitor.h">
+   <text>/*!
+ * \file monitor.h
+ */
+
+#ifndef COMPONENTS_MONITOR_MONITOR_H
+#define COMPONENTS_MONITOR_MONITOR_H
+
+
+#endif /* COMPONENTS_MONITOR_MONITOR_H */</text>
+  </file>
+ </directory>
+</package>

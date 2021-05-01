@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package name="mqtt_client" stereotype="0x02">
+ <class name="mqtt_client" superclass="qpc::QActive">
+  <attribute name="tickEvt" type="QTimeEvt" visibility="0x02" properties="0x00"/>
+  <attribute name="hostAddress" type="char *" visibility="0x02" properties="0x00"/>
+  <attribute name="port" type="uint16_t" visibility="0x02" properties="0x00"/>
+  <attribute name="client" type="AWS_IoT_Client" visibility="0x02" properties="0x00"/>
+  <attribute name="mqttInitParams" type="IoT_Client_Init_Params" visibility="0x02" properties="0x00"/>
+  <attribute name="connectParams" type="IoT_Client_Connect_Params" visibility="0x02" properties="0x00"/>
+  <attribute name="paramsQOS0" type="IoT_Publish_Message_Params" visibility="0x02" properties="0x00"/>
+  <attribute name="paramsQOS1" type="IoT_Publish_Message_Params" visibility="0x02" properties="0x00"/>
+  <attribute name="root_ca" type="char *" visibility="0x02" properties="0x00"/>
+  <attribute name="client_cert" type="char *" visibility="0x02" properties="0x00"/>
+  <attribute name="client_key" type="char *" visibility="0x02" properties="0x00"/>
+  <attribute name="clientName[24]" type="char" visibility="0x02" properties="0x00">
+   <documentation>/*
+ * Client Unique name
+ * Format: &quot;Dispenser000000000000&quot;
+ * Suffix is derived from MAC address
+ */</documentation>
+  </attribute>
+  <operation name="nvs_read" type="esp_err_t" visibility="0x02" properties="0x00">
+   <code>char * hostAddress = NULL;
+char * root_ca = NULL;
+char * client_cert = NULL;
+char * client_key = NULL;
+
+nvs_handle_t my_handle;
+size_t required_size = 0;
+esp_err_t ret = ESP_OK;
+
+/* Read NVS for mqtt host address */
+ret = nvs_open(PROJECT_NVS_NAMESPACE, NVS_READWRITE, &amp;my_handle);
+if(ESP_OK == ret) {
+    required_size = 0;
+    if(ESP_OK == nvs_get_str(my_handle, &quot;mqtt_host_addr&quot;, NULL, &amp;required_size)) {
+        if(required_size &gt; 0) {
+            hostAddress = (char *)pvPortMalloc(required_size);
+            if(hostAddress != NULL) {
+                if(ESP_OK == nvs_get_str(my_handle, &quot;mqtt_host_addr&quot;, hostAddress, &amp;required_size)) {
+                    if(me-&gt;hostAddress) {
+                        vPortFree(me-&gt;hostAddress);
+                        me-&gt;hostAddress = NULL;
+                    }
+                    me-&gt;hostAddress = hostAddress;
+                } else {
+                    vPortFree(hostAddress);
+                }
+            }
+        }
+    }
+
+    required_size = 0;
+    if(ESP_OK == nvs_get_str(my_handle, &quot;mqtt_ca&quot;, NULL, &amp;required_size)) {
+        if(required_size &gt; 0) {
+            root_ca = (char *)pvPortMalloc(required_size);
+            if(root_ca != NULL) {
+                if(ESP_OK == nvs_get_str(my_handle, &quot;mqtt_ca&quot;, root_ca, &amp;required_size)) {
+                    if(me-&gt;root_ca) {
+                        vPortFree(me-&gt;root_ca);
+                        me-&gt;root_ca = NULL;
+                    }
+                    me-&gt;root_ca = root_ca;
+                } else {
+                    vPortFree(root_ca);
+                }
+            }
+        }
+    }
+
+    required_size = 0;
+    if(ESP_OK == nvs_get_str(my_handle, &quot;mqtt_crt&quot;, NULL, &amp;required_size)) {
+        if(required_size &gt; 0) {
+            client_cert = (char *)pvPortMalloc(required_size);
+            if(client_cert != NULL) {
+                if(ESP_OK == nvs_get_str(my_handle, &quot;mqtt_crt&quot;, client_cert, &amp;required_size)) {
+                    if(me-&gt;client_cert) {
+                        vPortFree(me-&gt;client_cert);
+                        me-&gt;client_cert = NULL;
+                    }
+                    me-&gt;client_cert = client_cert;
+                } else {
+                    vPortFree(client_cert);
+                }
+            }
+        }
+    }
+
+    required_size = 0;
+    if(ESP_OK == nvs_get_str(my_handle, &quot;mqtt_key&quot;, NULL, &amp;required_size)) {
+        if(required_size &gt; 0) {
+            client_key = (char *)pvPortMalloc(required_size);
+            if(client_key != NULL) {
+                if(ESP_OK == nvs_get_str(my_handle, &quot;mqtt_key&quot;, client_key, &amp;required_size)) {
+                    if(me-&gt;client_key) {
+                        vPortFree(me-&gt;client_key);
+                        me-&gt;client_key = NULL;
+                    }
+                    me-&gt;client_key = client_key;
+                } else {
+                    vPortFree(client_key);
+                }
+            }
+        }
+    }
+
+    nvs_close(my_handle);
+}
+
+return ret;</code>
+  </operation>
+  <operation name="nvs_save_host_address" type="esp_err_t" visibility="0x02" properties="0x00">
+   <code>esp_err_t ret;
+nvs_handle_t my_handle;
+
+// Open
+ret = nvs_open(PROJECT_NVS_NAMESPACE, NVS_READWRITE, &amp;my_handle);
+if (ESP_OK != ret) {
+    return ret;
+}
+
+// Save hostAddress
+ret = nvs_set_str(my_handle, &quot;mqtt_host_addr&quot;, me-&gt;hostAddress);
+if(ESP_OK != ret) {
+    goto cleanup_nvs_close;
+}
+
+ret = nvs_commit(my_handle);
+
+cleanup_nvs_close:
+    nvs_close(my_handle);
+    return ret;</code>
+  </operation>
+  <operation name="nvs_save_root_ca" type="esp_err_t" visibility="0x02" properties="0x00">
+   <code>esp_err_t ret;
+nvs_handle_t my_handle;
+
+// Open
+ret = nvs_open(PROJECT_NVS_NAMESPACE, NVS_READWRITE, &amp;my_handle);
+if (ESP_OK != ret) {
+    return ret;
+}
+
+// Save rootCA
+ret = nvs_set_str(my_handle, &quot;mqtt_ca&quot;, me-&gt;root_ca);
+if(ESP_OK != ret) {
+    goto cleanup_nvs_close;
+}
+
+ret = nvs_commit(my_handle);
+
+cleanup_nvs_close:
+    nvs_close(my_handle);
+    return ret;</code>
+  </operation>
+  <operation name="nvs_save_cert" type="esp_err_t" visibility="0x02" properties="0x00">
+   <code>esp_err_t ret;
+nvs_handle_t my_handle;
+
+// Open
+ret = nvs_open(PROJECT_NVS_NAMESPACE, NVS_READWRITE, &amp;my_handle);
+if (ESP_OK != ret) {
+    return ret;
+}
+
+// Save Client Cert
+ret = nvs_set_str(my_handle, &quot;mqtt_crt&quot;, me-&gt;client_cert);
+if(ESP_OK != ret) {
+    goto cleanup_nvs_close;
+}
+
+ret = nvs_commit(my_handle);
+
+cleanup_nvs_close:
+    nvs_close(my_handle);
+    return ret;</code>
+  </operation>
+  <operation name="nvs_save_key" type="esp_err_t" visibility="0x02" properties="0x00">
+   <code>esp_err_t ret;
+nvs_handle_t my_handle;
+
+// Open
+ret = nvs_open(PROJECT_NVS_NAMESPACE, NVS_READWRITE, &amp;my_handle);
+if (ESP_OK != ret) {
+    return ret;
+}
+
+// Save Client Private Key
+ret = nvs_set_str(my_handle, &quot;mqtt_key&quot;, me-&gt;client_key);
+if(ESP_OK != ret) {
+    goto cleanup_nvs_close;
+}
+
+ret = nvs_commit(my_handle);
+
+cleanup_nvs_close:
+    nvs_close(my_handle);
+    return ret;</code>
+  </operation>
+  <statechart properties="0x01">
+   <initial target="../1">
+    <initial_glyph conn="9,16,5,3,8">
+     <action box="0,-2,10,2"/>
+    </initial_glyph>
+   </initial>
+   <state name="TOP">
+    <initial target="../1">
+     <initial_glyph conn="24,22,5,3,10">
+      <action box="0,-2,10,2"/>
+     </initial_glyph>
+    </initial>
+    <state name="INITIALIZING">
+     <entry>ESP_LOGI(TAG, &quot;state: INITIALIZING&quot;);
+IoT_Error_t ret;
+
+/* Read NVS */
+ESP_ERROR_CHECK(mqtt_client_nvs_read(me));
+
+/* Check Host Address */
+if(me-&gt;hostAddress != NULL) {
+    ESP_LOGI(TAG, &quot;host address: %s&quot;, me-&gt;hostAddress);
+} else {
+    ESP_LOGI(TAG, &quot;Set host address to Default&quot;);
+    me-&gt;hostAddress = (char *)pvPortMalloc(strlen(HOSTADDRESS_DEFAULT) + 1);
+    if(me-&gt;hostAddress) {
+        memset(me-&gt;hostAddress, 0, strlen(HOSTADDRESS_DEFAULT) + 1);
+        strcpy(me-&gt;hostAddress, HOSTADDRESS_DEFAULT);
+        mqtt_client_nvs_save_host_address(me);
+    }
+}
+
+/* Check Root CA */
+if(me-&gt;root_ca != NULL) {
+    ESP_LOGI(TAG, &quot;Root CA found&quot;);
+} else {
+    ESP_LOGI(TAG, &quot;Set RootCA to Default (size: %d)&quot;, strlen(default_ca_start));
+    me-&gt;root_ca = default_ca_start;
+    mqtt_client_nvs_save_root_ca(me);
+}
+
+/* Check Client Cert */
+if(me-&gt;client_cert != NULL) {
+    ESP_LOGI(TAG, &quot;Client Cert found&quot;);
+} else {
+    ESP_LOGI(TAG, &quot;Set Client cert to Default (size: %d)&quot;, strlen(default_crt_start));
+    me-&gt;client_cert = default_crt_start;
+    mqtt_client_nvs_save_cert(me);
+}
+
+/* Check Client Key */
+if(me-&gt;client_key != NULL) {
+    ESP_LOGI(TAG, &quot;Client Key found&quot;);
+} else {
+    ESP_LOGI(TAG, &quot;Set Client key to Default (size: %d)&quot;, strlen(default_key_start));
+    me-&gt;client_key = default_key_start;
+    mqtt_client_nvs_save_key(me);
+}
+
+ESP_LOGI(TAG, &quot;AWS IoT SDK Version %d.%d.%d-%s&quot;, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_TAG);
+
+me-&gt;mqttInitParams.enableAutoReconnect = false; // We enable this later below
+me-&gt;mqttInitParams.pHostURL = me-&gt;hostAddress;
+me-&gt;mqttInitParams.port = me-&gt;port;
+me-&gt;mqttInitParams.pRootCALocation = me-&gt;root_ca;
+me-&gt;mqttInitParams.pDeviceCertLocation = me-&gt;client_cert;
+me-&gt;mqttInitParams.pDevicePrivateKeyLocation = me-&gt;client_key;
+me-&gt;mqttInitParams.mqttCommandTimeout_ms = 20000;
+me-&gt;mqttInitParams.tlsHandshakeTimeout_ms = 5000;
+me-&gt;mqttInitParams.isSSLHostnameVerify = true;
+me-&gt;mqttInitParams.disconnectHandler = disconnect_handler;
+me-&gt;mqttInitParams.disconnectHandlerData = NULL;
+
+ret = aws_iot_mqtt_init(&amp;(me-&gt;client), &amp;(me-&gt;mqttInitParams));
+if(ret != SUCCESS) {
+    ESP_LOGE(TAG, &quot;mqtt client init failed (%d)&quot;, ret);
+}
+
+/* Arm Timer for auto state transit */
+QTimeEvt_armX(&amp;me-&gt;tickEvt,
+              pdMS_TO_TICKS(50),
+              pdMS_TO_TICKS(50));</entry>
+     <exit>/* Disarm Timer */
+QTimeEvt_disarm(&amp;me-&gt;tickEvt);</exit>
+     <tran trig="IOT_MQTT_TICK" target="../../2">
+      <action brief="auto transit"/>
+      <tran_glyph conn="34,27,3,1,29,8,-2">
+       <action box="0,-2,23,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="34,18,27,11">
+      <entry box="1,2,6,2"/>
+      <exit box="1,4,6,2"/>
+     </state_glyph>
+    </state>
+    <state name="INITIALIZED">
+     <entry>ESP_LOGI(TAG, &quot;state: INITIALIZED&quot;);
+
+/* Arm Timer for state transit */
+QTimeEvt_armX(&amp;me-&gt;tickEvt,
+              pdMS_TO_TICKS(1000),
+              pdMS_TO_TICKS(1000));</entry>
+     <exit>/* Disarm Timer */
+QTimeEvt_disarm(&amp;me-&gt;tickEvt);</exit>
+     <tran trig="IOT_MQTT_TICK">
+      <choice target="../../../3">
+       <guard brief="wifi_has_ip">iot_wifi_has_ip()</guard>
+       <choice_glyph conn="48,40,5,1,15,10,-2">
+        <action box="2,-2,10,2"/>
+       </choice_glyph>
+      </choice>
+      <choice>
+       <guard>else</guard>
+       <choice_glyph conn="48,40,4,-1,-4,6">
+        <action box="0,-6,6,2"/>
+       </choice_glyph>
+      </choice>
+      <tran_glyph conn="34,40,3,-1,14">
+       <action box="0,-2,14,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="34,31,27,13">
+      <entry box="1,2,6,2"/>
+      <exit box="1,4,6,2"/>
+     </state_glyph>
+    </state>
+    <state name="CONNECTING">
+     <entry>ESP_LOGI(TAG, &quot;state: CONNECTING&quot;);
+
+me-&gt;connectParams.keepAliveIntervalInSec = 30;
+me-&gt;connectParams.isCleanSession = true;
+me-&gt;connectParams.MQTTVersion = MQTT_3_1_1;
+
+/* Generate Unique Client name */
+uint8_t mac[6];
+esp_wifi_get_mac(ESP_IF_WIFI_STA, mac);
+memset(me-&gt;clientName, 0, sizeof(me-&gt;clientName));
+snprintf(me-&gt;clientName, sizeof(me-&gt;clientName)-1, &quot;device%02X%02X%02X%02X%02X%02X&quot;,
+    mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+ESP_LOGI(TAG, &quot;client name: %s&quot;, me-&gt;clientName);
+me-&gt;connectParams.pClientID = me-&gt;clientName;
+me-&gt;connectParams.clientIDLen = (uint16_t) strlen(me-&gt;clientName);
+me-&gt;connectParams.isWillMsgPresent = false;
+
+/* Arm Timer for state transit */
+QTimeEvt_armX(&amp;me-&gt;tickEvt,
+              pdMS_TO_TICKS(500),
+              pdMS_TO_TICKS(10000));</entry>
+     <exit>/* Disarm Timer */
+QTimeEvt_disarm(&amp;me-&gt;tickEvt);</exit>
+     <tran trig="IOT_MQTT_TICK">
+      <action brief="connect">IoT_Error_t ret = aws_iot_mqtt_connect(&amp;(me-&gt;client),
+                        &amp;(me-&gt;connectParams));</action>
+      <choice target="../../../4">
+       <guard brief="success">SUCCESS == ret</guard>
+       <choice_glyph conn="48,54,5,1,15,12,-2">
+        <action box="1,-2,10,2"/>
+       </choice_glyph>
+      </choice>
+      <choice>
+       <guard>else</guard>
+       <action>ESP_LOGE(TAG, &quot;Error(%d) connecting to %s:%d&quot;, ret,
+            me-&gt;mqttInitParams.pHostURL,
+            me-&gt;mqttInitParams.port);</action>
+       <choice_glyph conn="48,54,4,-1,3,6">
+        <action box="1,1,10,2"/>
+       </choice_glyph>
+      </choice>
+      <tran_glyph conn="34,54,3,-1,14">
+       <action box="0,-2,13,4"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="34,46,27,13">
+      <entry box="1,2,6,2"/>
+      <exit box="1,4,6,2"/>
+     </state_glyph>
+    </state>
+    <state name="CONNECTED">
+     <entry>ESP_LOGI(TAG, &quot;state: CONNECTED&quot;);
+
+IoT_Error_t ret = aws_iot_mqtt_autoreconnect_set_status(&amp;(me-&gt;client), true);
+if(SUCCESS != ret) {
+    ESP_LOGE(TAG, &quot;Unable to set Auto Reconnect to true - %d&quot;, ret);
+    /// TODO
+}</entry>
+     <state_glyph node="34,61,27,13">
+      <entry box="1,2,6,2"/>
+     </state_glyph>
+    </state>
+    <state_glyph node="17,10,52,71"/>
+   </state>
+   <state_diagram size="80,85"/>
+  </statechart>
+ </class>
+ <attribute name="AO_iot_mqtt_client" type="QActive * const" visibility="0x00" properties="0x00">
+  <code>= &amp;(l_mqtt_client.super);</code>
+ </attribute>
+ <operation name="iot_mqtt_client_ctor" type="void" visibility="0x00" properties="0x00">
+  <code>mqtt_client * me;
+static uint32_t bInitOnce = 0;
+
+if(bInitOnce == 0) {
+    me = &amp;l_mqtt_client;
+
+    me-&gt;hostAddress = NULL;
+    me-&gt;port = 8883;
+    me-&gt;mqttInitParams = iotClientInitParamsDefault;
+    me-&gt;connectParams = iotClientConnectParamsDefault;
+
+    /* Call constructor */
+    QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;mqtt_client_initial));
+    /* Call Timer Constructor */
+    QTimeEvt_ctorX(&amp;me-&gt;tickEvt, &amp;me-&gt;super, IOT_MQTT_TICK_SIG, 0U);
+
+    /* Create AO Task */
+    QActive_setAttr(AO_iot_mqtt_client, TASK_NAME_ATTR, &quot;iot_mqtt&quot;);
+    bInitOnce = 1;
+    QACTIVE_START(
+            AO_iot_mqtt_client,             /* AO to start */
+            AO_PRIORITY_MQTT_CLIENT,        /* QP priority of the AO */
+            l_mqttClientQSto,               /* Event Queue Storage */
+            Q_DIM(l_mqttClientQSto),        /* Lenght of Event Queue */
+            mqttClientStack,                /* Stack storage */
+            sizeof(mqttClientStack),        /* Size of Stack */
+            (QEvt *)0                       /* Not Used */
+            );
+}
+</code>
+ </operation>
+ <operation name="iot_mqtt_client_is_connected" type="bool" visibility="0x00" properties="0x00"/>
+ <operation name="iot_mqtt_publish" type="void" visibility="0x00" properties="0x00">
+  <parameter name="topic" type="const char *"/>
+  <parameter name="topic_len" type="uint16_t"/>
+  <parameter name="pubParam" type="IoT_Publish_Message_Params *"/>
+  <code>mqtt_client * me = &amp;l_mqtt_client;
+
+aws_iot_mqtt_publish(&amp;(me-&gt;client), topic, topic_len, pubParam);</code>
+ </operation>
+ <operation name="disconnect_handler" type="void" visibility="0x02" properties="0x00">
+  <parameter name="pClient" type="AWS_IoT_Client *"/>
+  <parameter name="data" type="void *"/>
+ </operation>
+ <directory name=".">
+  <file name="iot_mqtt_client.h">
+   <text>#ifndef _IOT_MQTT_CLIENT_H_
+#define _IOT_MQTT_CLIENT_H_
+
+#include &quot;aws_iot_mqtt_client.h&quot;
+
+$declare(iot::mqtt_client::AO_iot_mqtt_client})
+$declare(iot::mqtt_client::iot_mqtt_client_ctor)
+$declare(iot::mqtt_client::iot_mqtt_publish)
+
+#endif /* _IOT_MQTT_CLIENT_H_ */</text>
+  </file>
+  <file name="iot_mqtt_client.c">
+   <text>#include &quot;freertos/FreeRTOS.h&quot;
+#include &quot;freertos/task.h&quot;
+#include &lt;string.h&gt;
+#include &quot;freertos/queue.h&quot;
+#include &quot;esp_system.h&quot;
+#include &quot;esp_event.h&quot;
+#include &quot;esp_wifi.h&quot;
+#include &quot;esp_log.h&quot;
+#include &quot;nvs_flash.h&quot;
+#include &quot;nvs.h&quot;
+
+#include &quot;aws_iot_config.h&quot;
+#include &quot;aws_iot_log.h&quot;
+#include &quot;aws_iot_version.h&quot;
+#include &quot;aws_iot_mqtt_client_interface.h&quot;
+
+#include &quot;qpc.h&quot;
+#if defined(CONFIG_QPC_QSPY_ENABLE)
+#include &quot;qs.h&quot;
+#endif /* #if defined(CONFIG_QPC_QSPY_ENABLE) */
+
+#include &quot;priorityList.h&quot;
+#include &quot;signalList.h&quot;
+#include &quot;project_def.h&quot;
+
+#include &quot;iot_mqtt_client.h&quot;
+#include &quot;iot_wifi.h&quot;
+#include &quot;cert_default/default_host.h&quot;
+
+Q_DEFINE_THIS_MODULE(&quot;iot_mqtt_client&quot;)
+
+static const char * TAG = &quot;iot_mqtt_client&quot;;
+
+enum mqttSignal {
+    IOT_MQTT_TICK_SIG = MAX_SIG,
+};
+
+static const char * HOSTADDRESS_DEFAULT = DEFAULT_HOST_ADDRESS;  // defined in cert_default/default_host.h
+extern const char default_ca_start[] asm(&quot;_binary_default_ca_pem_start&quot;);
+extern const char default_ca_end[] asm(&quot;_binary_default_ca_pem_end&quot;);
+extern const char default_crt_start[] asm(&quot;_binary_default_crt_start&quot;);
+extern const char default_crt_end[] asm(&quot;_binary_default_crt_end&quot;);
+extern const char default_key_start[] asm(&quot;_binary_default_key_start&quot;);
+extern const char default_key_end[] asm(&quot;_binary_default_key_end&quot;);
+
+$declare(iot::mqtt_client::mqtt_client)
+
+static mqtt_client l_mqtt_client;
+static QEvt const * l_mqttClientQSto[64];
+/* FreeRTOS stack for AO */
+static StackType_t mqttClientStack[8196];
+
+$define(iot::mqtt_client::AO_iot_mqtt_client})
+$define(iot::mqtt_client::iot_mqtt_client_ctor)
+$define(iot::mqtt_client::iot_mqtt_publish)
+
+$define(iot::mqtt_client::disconnect_handler)
+
+$define(iot::mqtt_client::mqtt_client)
+</text>
+  </file>
+ </directory>
+</package>

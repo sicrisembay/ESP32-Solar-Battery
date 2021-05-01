@@ -1,0 +1,732 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package name="wifi" stereotype="0x02">
+ <class name="wifi" superclass="qpc::QActive">
+  <attribute name="tickEvt" type="QTimeEvt" visibility="0x02" properties="0x00"/>
+  <attribute name="deferQueue" type="QEQueue" visibility="0x02" properties="0x00"/>
+  <attribute name="deferQSto[2]" type="QEvt const *" visibility="0x02" properties="0x00"/>
+  <attribute name="sta_netif" type="esp_netif_t *" visibility="0x02" properties="0x00"/>
+  <attribute name="wifi_config" type="wifi_config_t" visibility="0x02" properties="0x00"/>
+  <attribute name="ap_info[IOT_WIFI_SCAN_LIST_SIZE]" type="wifi_ap_record_t" visibility="0x02" properties="0x00"/>
+  <attribute name="ap_count" type="uint16_t" visibility="0x02" properties="0x00"/>
+  <attribute name="scan_done_cb" type="done_cb" visibility="0x02" properties="0x00"/>
+  <attribute name="connect_done_cb" type="done_cb" visibility="0x02" properties="0x00"/>
+  <attribute name="auto_connect" type="bool" visibility="0x02" properties="0x00"/>
+  <attribute name="ssid" type="char *" visibility="0x02" properties="0x00"/>
+  <attribute name="password" type="char *" visibility="0x02" properties="0x00"/>
+  <attribute name="bHasIp" type="bool" visibility="0x02" properties="0x00"/>
+  <operation name="nvs_read_credential" type="esp_err_t" visibility="0x02" properties="0x00">
+   <code>char * ssid = NULL;
+char * password = NULL;
+nvs_handle_t my_handle;
+size_t required_size = 0;
+esp_err_t ret = ESP_OK;
+
+/* Read NVS for ssid and password */
+ret = nvs_open(PROJECT_NVS_NAMESPACE, NVS_READONLY, &amp;my_handle);
+if(ESP_OK == ret) {
+    required_size = 0;
+    if(ESP_OK == nvs_get_str(my_handle, &quot;wifi_ssid&quot;, NULL, &amp;required_size)) {
+        if(required_size &gt; 0) {
+            ssid = (char *)pvPortMalloc(required_size);
+            if(ssid != NULL) {
+                if(ESP_OK == nvs_get_str(my_handle, &quot;wifi_ssid&quot;, ssid, &amp;required_size)) {
+                    if(me-&gt;ssid) {
+                        vPortFree(me-&gt;ssid);
+                        me-&gt;ssid = NULL;
+                    }
+                    me-&gt;ssid = ssid;
+                } else {
+                    vPortFree(ssid);
+                }
+            }
+        }
+    }
+
+    required_size = 0;
+    if(ESP_OK == nvs_get_str(my_handle, &quot;wifi_password&quot;, NULL, &amp;required_size)) {
+        if(required_size &gt; 0) {
+            password = (char *)pvPortMalloc(required_size);
+            if(password != NULL) {
+                if(ESP_OK == nvs_get_str(my_handle, &quot;wifi_password&quot;, password, &amp;required_size)) {
+                    if(me-&gt;password) {
+                        vPortFree(me-&gt;password);
+                        me-&gt;password = NULL;
+                    }
+                    me-&gt;password = password;
+                } else {
+                    vPortFree(password);
+                }
+            }
+        }
+    }
+
+    nvs_close(my_handle);
+}
+
+return ret;</code>
+  </operation>
+  <operation name="nvs_save_credential" type="esp_err_t" visibility="0x02" properties="0x00">
+   <parameter name="ssid" type="const char *"/>
+   <parameter name="password" type="const char *"/>
+   <code>esp_err_t err;
+nvs_handle_t my_handle;
+size_t len;
+
+if((NULL == ssid) || (NULL == password)) {
+    return ESP_ERR_INVALID_ARG;
+}
+
+// Open
+err = nvs_open(PROJECT_NVS_NAMESPACE, NVS_READWRITE, &amp;my_handle);
+if (ESP_OK != err) {
+    return err;
+}
+
+// Save ssid
+err = nvs_set_str(my_handle, &quot;wifi_ssid&quot;, ssid);
+if(ESP_OK != err) {
+    goto cleanup_nvs_close;
+}
+if(me-&gt;ssid) {
+    vPortFree(me-&gt;ssid);
+    me-&gt;ssid = NULL;
+}
+len = strlen(ssid);
+me-&gt;ssid = (char *)pvPortMalloc(len+1);
+if(me-&gt;ssid) {
+    memset(me-&gt;ssid, 0, len+1);
+    strncpy(me-&gt;ssid, ssid, len);
+}
+
+// Save password
+err = nvs_set_str(my_handle, &quot;wifi_password&quot;, password);
+if(ESP_OK != err) {
+    goto cleanup_nvs_close;
+}
+if(me-&gt;password) {
+    vPortFree(me-&gt;password);
+    me-&gt;password = NULL;
+}
+len = strlen(password);
+me-&gt;password = (char *)pvPortMalloc(len+1);
+if(me-&gt;password) {
+    memset(me-&gt;password, 0, len+1);
+    strncpy(me-&gt;password, password, len);
+}
+
+err = nvs_commit(my_handle);
+
+cleanup_nvs_close:
+    nvs_close(my_handle);
+    return err;</code>
+  </operation>
+  <statechart properties="0x01">
+   <initial target="../1">
+    <initial_glyph conn="8,14,5,3,9">
+     <action box="0,-2,10,2"/>
+    </initial_glyph>
+   </initial>
+   <state name="TOP">
+    <initial target="../6">
+     <initial_glyph conn="34,6,5,0,6,3">
+      <action box="0,-2,10,2"/>
+     </initial_glyph>
+    </initial>
+    <tran trig="SCAN_START">
+     <action>/*
+ * Scan is only valid when wifi is already started (STARTED or CONNECTED)
+ */
+if(QEQueue_getNFree(&amp;me-&gt;deferQueue) &gt; 0) {
+    QActive_defer(&amp;me-&gt;super, &amp;me-&gt;deferQueue, e);
+}</action>
+     <tran_glyph conn="17,42,3,-1,13">
+      <action box="0,-2,10,2"/>
+     </tran_glyph>
+    </tran>
+    <tran trig="STA_DISCONNECTED" target="../10">
+     <tran_glyph conn="17,95,3,3,19">
+      <action box="0,-2,17,2"/>
+     </tran_glyph>
+    </tran>
+    <tran trig="STA_CONNECTED" target="../8">
+     <tran_glyph conn="17,84,3,3,19">
+      <action box="0,-2,15,2"/>
+     </tran_glyph>
+    </tran>
+    <tran trig="STA_START" target="../7">
+     <tran_glyph conn="17,67,3,3,19">
+      <action box="0,-2,10,2"/>
+     </tran_glyph>
+    </tran>
+    <tran trig="STA_STOP" target="../11">
+     <action brief="auto start"/>
+     <tran_glyph conn="17,28,3,3,19">
+      <action box="0,-2,18,2"/>
+     </tran_glyph>
+    </tran>
+    <state name="INITIALIZING">
+     <entry>ESP_LOGI(TAG, &quot;state: INITIALIZING&quot;);
+
+/* Initialize Wifi Stack */
+ESP_ERROR_CHECK(esp_netif_init());
+ESP_ERROR_CHECK(esp_event_loop_create_default());
+me-&gt;sta_netif = esp_netif_create_default_wifi_sta();
+Q_ASSERT(me-&gt;sta_netif);
+
+wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+ESP_ERROR_CHECK(esp_wifi_init(&amp;cfg));
+
+/* Register event handler */
+ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
+                    ESP_EVENT_ANY_ID, &amp;wifi_event_handler, NULL, NULL));
+ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT,
+                    IP_EVENT_STA_GOT_IP, &amp;wifi_event_handler, NULL, NULL));
+
+/* Arm Timer for auto state transit */
+QTimeEvt_armX(&amp;me-&gt;tickEvt,
+              pdMS_TO_TICKS(50),
+              pdMS_TO_TICKS(50));</entry>
+     <exit>/* Disarm Timer */
+QTimeEvt_disarm(&amp;me-&gt;tickEvt);</exit>
+     <tran trig="IOT_WIFI_TICK" target="../../11">
+      <action brief="auto transit"/>
+      <tran_glyph conn="36,17,3,1,40,8,-8">
+       <action box="0,-2,23,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="36,9,32,10">
+      <entry box="1,2,6,2"/>
+      <exit box="1,4,6,2"/>
+     </state_glyph>
+    </state>
+    <state name="STARTED">
+     <entry>ESP_LOGI(TAG, &quot;state: STARTED&quot;);
+
+QTimeEvt_armX(&amp;me-&gt;tickEvt,
+              pdMS_TO_TICKS(1000),
+              pdMS_TO_TICKS(10000));</entry>
+     <exit>/* Disarm Timer */
+QTimeEvt_disarm(&amp;me-&gt;tickEvt);</exit>
+     <tran trig="IOT_WIFI_TICK">
+      <action brief="connect">esp_err_t ret = ESP_OK;
+
+if(me-&gt;auto_connect) {
+    ESP_LOGI(TAG, &quot;action: connecting&quot;);
+    ret = esp_wifi_connect();
+    if(ESP_OK != ret) {
+        /* Failed connect API.
+           Manually fire event */
+        QEvt * pEvt = Q_NEW(QEvt, STA_DISCONNECTED_SIG);
+        QACTIVE_POST(AO_iot_wifi, pEvt, iot_wifi_connect);
+    }
+}</action>
+      <tran_glyph conn="36,69,3,-1,22">
+       <action box="0,-2,19,2"/>
+      </tran_glyph>
+     </tran>
+     <tran trig="STA_DISCONNECTED" target="../../10">
+      <action>done_cb callback = me-&gt;connect_done_cb;
+me-&gt;connect_done_cb = NULL;
+
+if(callback) {
+    callback();
+}</action>
+      <tran_glyph conn="36,72,3,1,35,22,-3">
+       <action box="0,-2,17,2"/>
+      </tran_glyph>
+     </tran>
+     <tran trig="STA_CONNECTED" target="../../8">
+      <action>done_cb callback = me-&gt;connect_done_cb;
+me-&gt;connect_done_cb = NULL;
+
+if(callback) {
+    callback();
+}</action>
+      <tran_glyph conn="36,74,3,1,34,9,-2">
+       <action box="0,-2,15,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="36,58,32,19">
+      <entry box="1,2,6,2"/>
+      <exit box="1,4,6,2"/>
+     </state_glyph>
+    </state>
+    <state name="CONNECTED">
+     <entry>ESP_LOGI(TAG, &quot;state: CONNECTED&quot;);
+
+QActive_recall((QActive *)me, &amp;me-&gt;deferQueue);</entry>
+     <tran trig="SCAN_START" target="../../9">
+      <tran_glyph conn="36,86,3,1,38,-38,-6">
+       <action box="0,-2,10,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="36,79,32,10">
+      <entry box="1,2,6,2"/>
+     </state_glyph>
+    </state>
+    <state name="SCANNING">
+     <entry>ESP_LOGI(TAG, &quot;state: SCANNING&quot;);
+
+me-&gt;ap_count = 0;
+memset(me-&gt;ap_info, 0, sizeof(me-&gt;ap_info));
+
+ESP_ERROR_CHECK(esp_wifi_scan_start(NULL, false)); // Non-blocking
+</entry>
+     <tran trig="SCAN_DONE">
+      <action>uint16_t number = IOT_WIFI_SCAN_LIST_SIZE;
+done_cb callback;
+
+ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&amp;number, me-&gt;ap_info));
+ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&amp;(me-&gt;ap_count)));
+ESP_LOGI(TAG, &quot;Total AP scanned: %d&quot;, me-&gt;ap_count);
+callback = me-&gt;scan_done_cb;
+me-&gt;scan_done_cb = NULL;
+
+if(callback) {
+    callback();
+}</action>
+      <tran_glyph conn="36,47,3,-1,13">
+       <action box="0,-2,13,2"/>
+      </tran_glyph>
+     </tran>
+     <tran trig="SCAN_START" target="..">
+      <tran_glyph conn="36,50,3,2,13,4">
+       <action box="0,-2,10,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="36,38,32,16">
+      <entry box="1,2,6,2"/>
+     </state_glyph>
+    </state>
+    <state name="DISCONNECTED">
+     <entry>ESP_LOGI(TAG, &quot;state: DISCONNECTED&quot;);
+
+QActive_recall((QActive *)me, &amp;me-&gt;deferQueue);
+
+QTimeEvt_armX(&amp;me-&gt;tickEvt,
+              pdMS_TO_TICKS(10000),
+              pdMS_TO_TICKS(10000));</entry>
+     <exit>/* Disarm Timer */
+QTimeEvt_disarm(&amp;me-&gt;tickEvt);</exit>
+     <tran trig="STA_STOP, IOT_WIFI_TICK" target="../../11">
+      <action>ESP_LOGI(TAG, &quot;action: stopping wifi&quot;);
+esp_wifi_stop();</action>
+      <tran_glyph conn="36,105,3,1,42,-78,-10">
+       <action box="0,-4,15,4"/>
+      </tran_glyph>
+     </tran>
+     <tran trig="SCAN_START" target="../../9">
+      <tran_glyph conn="36,99,3,1,36,-48,-4">
+       <action box="0,-2,10,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="36,90,32,17">
+      <entry box="1,2,6,2"/>
+      <exit box="1,4,6,2"/>
+     </state_glyph>
+    </state>
+    <state name="STARTING">
+     <entry>ESP_LOGI(TAG, &quot;state: STARTING&quot;);
+
+/* Arm Timer for start retry interval: 10s */
+QTimeEvt_armX(&amp;me-&gt;tickEvt,
+              pdMS_TO_TICKS(1000),
+              pdMS_TO_TICKS(10000));</entry>
+     <exit>/* Disarm Timer */
+QTimeEvt_disarm(&amp;me-&gt;tickEvt);</exit>
+     <tran trig="IOT_WIFI_TICK">
+      <action brief="continuous retry to start">/* Read Wifi Credential from NVS */
+wifi_nvs_read_credential(me);
+if(me-&gt;ssid != NULL) {
+    strcpy((char *)me-&gt;wifi_config.sta.ssid, me-&gt;ssid);
+}
+if(me-&gt;password != NULL) {
+    strcpy((char *)me-&gt;wifi_config.sta.password, me-&gt;password);
+}
+
+/* Setting a password implies station will connect to all security modes including WEP/WPA.
+ * However these modes are deprecated and not advisable to be used. Incase your Access point
+ * doesn't support WPA2, these mode can be enabled by commenting below line */
+me-&gt;wifi_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
+me-&gt;wifi_config.sta.pmf_cfg.capable = true;
+me-&gt;wifi_config.sta.pmf_cfg.required = false;
+
+ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &amp;me-&gt;wifi_config));
+ESP_ERROR_CHECK(esp_wifi_start());</action>
+      <tran_glyph conn="36,31,3,-1,19">
+       <action box="0,-4,19,5"/>
+      </tran_glyph>
+     </tran>
+     <tran trig="STA_START" target="../../7">
+      <tran_glyph conn="36,34,3,1,40,36,-8">
+       <action box="0,-2,10,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="36,21,32,15">
+      <entry box="1,2,6,2"/>
+      <exit box="1,4,6,2"/>
+     </state_glyph>
+    </state>
+    <state_glyph node="17,2,64,107"/>
+   </state>
+   <state_diagram size="95,110"/>
+  </statechart>
+ </class>
+ <attribute name="AO_iot_wifi" type="QActive * const" visibility="0x00" properties="0x00">
+  <code>= &amp;(l_wifi.super);</code>
+ </attribute>
+ <operation name="wifi_event_handler" type="void" visibility="0x02" properties="0x00">
+  <parameter name="event_handler_arg" type="void *"/>
+  <parameter name="event_base" type="esp_event_base_t"/>
+  <parameter name="event_id" type="int32_t"/>
+  <parameter name="event_data" type="void *"/>
+  <code>wifi * me = &amp;l_wifi;
+
+QEvt * pEvt;
+
+if(WIFI_EVENT == event_base) {
+    switch(event_id) {
+        case WIFI_EVENT_WIFI_READY: {
+            ESP_LOGI(TAG, &quot;WIFI_EVENT_WIFI_READY&quot;);
+            pEvt = Q_NEW(QEvt, WIFI_READY_SIG);
+            QACTIVE_POST(AO_iot_wifi, pEvt, wifi_event_handler);
+            break;
+        }
+        case WIFI_EVENT_SCAN_DONE: {
+            ESP_LOGI(TAG, &quot;WIFI_EVENT_SCAN_DONE&quot;);
+            pEvt = Q_NEW(QEvt, SCAN_DONE_SIG);
+            QACTIVE_POST(AO_iot_wifi, pEvt, wifi_event_handler);
+            break;
+        }
+        case WIFI_EVENT_STA_START: {
+            ESP_LOGI(TAG, &quot;WIFI_EVENT_STA_START&quot;);
+            pEvt = Q_NEW(QEvt, STA_START_SIG);
+            QACTIVE_POST(AO_iot_wifi, pEvt, wifi_event_handler);
+            break;
+        }
+        case WIFI_EVENT_STA_STOP: {
+            ESP_LOGI(TAG, &quot;WIFI_EVENT_STA_STOP&quot;);
+            me-&gt;bHasIp = false;
+            pEvt = Q_NEW(QEvt, STA_STOP_SIG);
+            QACTIVE_POST(AO_iot_wifi, pEvt, wifi_event_handler);
+            break;
+        }
+        case WIFI_EVENT_STA_CONNECTED: {
+            ESP_LOGI(TAG, &quot;WIFI_EVENT_STA_CONNECTED&quot;);
+            pEvt = Q_NEW(QEvt, STA_CONNECTED_SIG);
+            QACTIVE_POST(AO_iot_wifi, pEvt, wifi_event_handler);
+            break;
+        }
+        case WIFI_EVENT_STA_DISCONNECTED: {
+            ESP_LOGI(TAG, &quot;WIFI_EVENT_STA_DISCONNECTED&quot;);
+            me-&gt;bHasIp = false;
+            pEvt = Q_NEW(QEvt, STA_DISCONNECTED_SIG);
+            QACTIVE_POST(AO_iot_wifi, pEvt, wifi_event_handler);
+            break;
+        }
+        case WIFI_EVENT_STA_AUTHMODE_CHANGE: {
+            ESP_LOGI(TAG, &quot;WIFI_EVENT_STA_AUTHMODE_CHANGE&quot;);
+            pEvt = Q_NEW(QEvt, STA_AUTHMODE_CHANGE_SIG);
+            QACTIVE_POST(AO_iot_wifi, pEvt, wifi_event_handler);
+            break;
+        }
+        case WIFI_EVENT_STA_WPS_ER_SUCCESS: {
+            ESP_LOGI(TAG, &quot;WIFI_EVENT_STA_WPS_ER_SUCCESS&quot;);
+            // not used in this project
+            break;
+        }
+        case WIFI_EVENT_STA_WPS_ER_FAILED: {
+            ESP_LOGI(TAG, &quot;WIFI_EVENT_STA_WPS_ER_FAILED&quot;);
+            // not used in this project
+            break;
+        }
+        case WIFI_EVENT_STA_WPS_ER_TIMEOUT: {
+            ESP_LOGI(TAG, &quot;WIFI_EVENT_STA_WPS_ER_TIMEOUT&quot;);
+            // not used in this project
+            break;
+        }
+        case WIFI_EVENT_STA_WPS_ER_PIN: {
+            ESP_LOGI(TAG, &quot;WIFI_EVENT_STA_WPS_ER_PIN&quot;);
+            // not used in this project
+            break;
+        }
+        case WIFI_EVENT_STA_WPS_ER_PBC_OVERLAP: {
+            ESP_LOGI(TAG, &quot;WIFI_EVENT_STA_WPS_ER_PBC_OVERLAP&quot;);
+            // not used in this project
+            break;
+        }
+        default:
+            break;
+    }
+} else if(IP_EVENT == event_base) {
+    switch(event_id) {
+        case IP_EVENT_STA_GOT_IP: {
+            ESP_LOGI(TAG, &quot;IP_EVENT_STA_GOT_IP&quot;);
+            me-&gt;bHasIp = true;
+            break;
+        }
+        default:
+            break;
+    }
+}
+</code>
+ </operation>
+ <operation name="iot_wifi_ctor" type="void" visibility="0x00" properties="0x00">
+  <code>wifi *me;
+static uint32_t bInitOnce = 0;
+
+if(bInitOnce == 0) {
+    me = &amp;l_wifi;
+
+    /* Init members */
+    me-&gt;ap_count = 0;
+    memset(me-&gt;ap_info, 0, sizeof(me-&gt;ap_info));
+    me-&gt;scan_done_cb = NULL;
+    me-&gt;auto_connect = true;
+    me-&gt;ssid = NULL;
+    me-&gt;password = NULL;
+    me-&gt;bHasIp = false;
+
+    /* Call constructor */
+    QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;wifi_initial));
+    /* Call Timer Constructor */
+    QTimeEvt_ctorX(&amp;me-&gt;tickEvt, &amp;me-&gt;super, IOT_WIFI_TICK_SIG, 0U);
+    /* Defer Queue */
+    QEQueue_init(&amp;me-&gt;deferQueue,
+                  me-&gt;deferQSto, Q_DIM(me-&gt;deferQSto));
+
+    /* Create AO Task */
+    QActive_setAttr(AO_iot_wifi, TASK_NAME_ATTR, &quot;iot_wifi&quot;);
+    bInitOnce = 1;
+    QACTIVE_START(
+            AO_iot_wifi,                    /* AO to start */
+            AO_PRIORITY_WIFI,               /* QP priority of the AO */
+            l_wifiQSto,                     /* Event Queue Storage */
+            Q_DIM(l_wifiQSto),              /* Lenght of Event Queue */
+            wifiStack,                      /* Stack storage */
+            sizeof(wifiStack),              /* Size of Stack */
+            (QEvt *)0                       /* Not Used */
+            );
+
+
+}
+</code>
+ </operation>
+ <operation name="iot_wifi_scan_ap" type="esp_err_t" visibility="0x00" properties="0x00">
+  <parameter name="callback" type="void *"/>
+  <code>wifi * me = &amp;l_wifi;
+
+if(me-&gt;scan_done_cb != NULL) {
+    /* Scan on-going */
+    return ESP_ERR_INVALID_STATE;
+}
+
+me-&gt;scan_done_cb = (done_cb)callback;
+
+QEvt * pEvt;
+pEvt = Q_NEW(QEvt, SCAN_START_SIG);
+QACTIVE_POST(AO_iot_wifi, pEvt, iot_wifi_scan_ap);
+
+return ESP_OK;</code>
+ </operation>
+ <operation name="iot_wifi_get_ap_count" type="uint16_t" visibility="0x00" properties="0x00">
+  <code>wifi * me = &amp;l_wifi;
+
+return (me-&gt;ap_count);
+</code>
+ </operation>
+ <operation name="iot_wifi_get_ap_name_len" type="size_t" visibility="0x00" properties="0x00">
+  <parameter name="id" type="uint16_t"/>
+  <code>wifi * me = &amp;l_wifi;
+
+if(id &gt;= me-&gt;ap_count) {
+    /* invalid id */
+    return 0;
+}
+
+return (strlen((char *)(me-&gt;ap_info[id].ssid)));</code>
+ </operation>
+ <operation name="iot_wifi_get_ap_name" type="char *" visibility="0x00" properties="0x00">
+  <parameter name="id" type="uint16_t"/>
+  <code>wifi * me = &amp;l_wifi;
+
+if(id &gt;= me-&gt;ap_count) {
+    /* invalid id */
+    return NULL;
+}
+
+return (char *)(me-&gt;ap_info[id].ssid);</code>
+ </operation>
+ <operation name="iot_wifi_connect" type="esp_err_t" visibility="0x00" properties="0x00">
+  <parameter name="ssid" type="const char *"/>
+  <parameter name="password" type="const char *"/>
+  <parameter name="callback" type="void *"/>
+  <code>wifi * me = &amp;l_wifi;
+esp_err_t err = ESP_OK;
+
+if((NULL == ssid) || (NULL == password)) {
+    return ESP_ERR_INVALID_ARG;
+}
+
+if(callback != NULL) {
+    if(me-&gt;connect_done_cb != NULL) {
+        /* Connect on-going */
+        return ESP_ERR_INVALID_STATE;
+    }
+}
+
+err = wifi_nvs_save_credential(me, ssid, password);
+if(ESP_OK != err) {
+    return (err);
+}
+
+/* Disconnect from existing AP */
+/* Underlying state machine handles reconnection */
+QEvt * pEvt = Q_NEW(QEvt, STA_DISCONNECTED_SIG);
+QACTIVE_POST(AO_iot_wifi, pEvt, iot_wifi_connect);
+
+me-&gt;connect_done_cb = callback;
+
+return (err);</code>
+ </operation>
+ <operation name="iot_wifi_has_ip" type="bool" visibility="0x00" properties="0x00">
+  <code>wifi * me = &amp;l_wifi;
+
+return(me-&gt;bHasIp);</code>
+ </operation>
+ <operation name="iot_wifi_get_signal_level" type="uint8_t" visibility="0x00" properties="0x00">
+  <parameter name="numLevels" type="int32_t"/>
+  <code>int8_t rssi;
+uint8_t sigLevel = 0;
+
+if(!iot_wifi_has_ip()) {
+    return 0;
+}
+
+/* Get rssi */
+wifi_ap_record_t ap;
+esp_wifi_sta_get_ap_info(&amp;ap);
+
+rssi = ap.rssi;
+
+if (rssi &lt;= MIN_RSSI) {
+    sigLevel = 0;
+} else if (rssi &gt;= MAX_RSSI) {
+    sigLevel = numLevels - 1;
+} else {
+    int32_t inputRange = MAX_RSSI - MIN_RSSI;
+    int32_t outputRange_q16 = ((int32_t)(numLevels - 1)) &lt;&lt; 16;
+    int32_t sigLevel_q16 = ((int32_t)(rssi - MIN_RSSI)) * outputRange_q16 / inputRange;
+    sigLevel = (uint8_t)((sigLevel_q16 + 32768) &gt;&gt; 16);
+}
+
+return sigLevel;</code>
+ </operation>
+ <directory name=".">
+  <file name="iot_wifi.h">
+   <text>#ifndef _IOT_WIFI_H_
+#define _IOT_WIFI_H_
+
+#define IOT_WIFI_SCAN_LIST_SIZE       (10)
+
+$declare(iot::wifi::AO_iot_wifi)
+$declare(iot::wifi::iot_wifi_ctor)
+
+$declare(iot::wifi::iot_wifi_scan_ap)
+$declare(iot::wifi::iot_wifi_get_ap_count)
+$declare(iot::wifi::iot_wifi_get_ap_name_len)
+$declare(iot::wifi::iot_wifi_get_ap_name)
+
+$declare(iot::wifi::iot_wifi_connect)
+$declare(iot::wifi::iot_wifi_has_ip)
+$declare(iot::wifi::iot_wifi_get_signal_level)
+
+#endif /* _IOT_WIFI_H_ */
+</text>
+  </file>
+  <file name="iot_wifi.c">
+   <text>#include &quot;freertos/FreeRTOS.h&quot;
+#include &quot;freertos/task.h&quot;
+#include &lt;string.h&gt;
+#include &quot;freertos/queue.h&quot;
+#include &quot;esp_system.h&quot;
+#include &quot;esp_wifi.h&quot;
+#include &quot;esp_event.h&quot;
+#include &quot;esp_log.h&quot;
+#include &quot;nvs_flash.h&quot;
+#include &quot;nvs.h&quot;
+
+#include &quot;qpc.h&quot;
+#if defined(CONFIG_QPC_QSPY_ENABLE)
+#include &quot;qs.h&quot;
+#endif /* #if defined(CONFIG_QPC_QSPY_ENABLE) */
+
+#include &quot;priorityList.h&quot;
+#include &quot;signalList.h&quot;
+#include &quot;project_def.h&quot;
+#include &quot;iot_wifi.h&quot;
+
+#define MIN_RSSI                      (-100)
+#define MAX_RSSI                      (-55)
+
+#define IOT_WIFI_MAXIMUM_RETRY        (5)
+
+enum wifiSignal {
+    IOT_WIFI_TICK_SIG = MAX_SIG,
+
+    WIFI_READY_SIG,                 //WIFI_EVENT_WIFI_READY = 0,           /**&lt; ESP32 WiFi ready */
+    SCAN_DONE_SIG,                  //WIFI_EVENT_SCAN_DONE,                /**&lt; ESP32 finish scanning AP */
+    STA_START_SIG,                  //WIFI_EVENT_STA_START,                /**&lt; ESP32 station start */
+    STA_STOP_SIG,                   //WIFI_EVENT_STA_STOP,                 /**&lt; ESP32 station stop */
+    STA_CONNECTED_SIG,              //WIFI_EVENT_STA_CONNECTED,            /**&lt; ESP32 station connected to AP */
+    STA_DISCONNECTED_SIG,           //WIFI_EVENT_STA_DISCONNECTED,         /**&lt; ESP32 station disconnected from AP */
+    STA_AUTHMODE_CHANGE_SIG,        //WIFI_EVENT_STA_AUTHMODE_CHANGE,      /**&lt; the auth mode of AP connected by ESP32 station changed */
+
+    STA_WPS_ER_SUCCESS_SIG,         //WIFI_EVENT_STA_WPS_ER_SUCCESS,       /**&lt; ESP32 station wps succeeds in enrollee mode */
+    STA_WPS_ER_FAILED_SIG,          //WIFI_EVENT_STA_WPS_ER_FAILED,        /**&lt; ESP32 station wps fails in enrollee mode */
+    STA_WPS_ER_TIMEOUT_SIG,         //WIFI_EVENT_STA_WPS_ER_TIMEOUT,       /**&lt; ESP32 station wps timeout in enrollee mode */
+    STA_WPS_ER_PIN_SIG,             //WIFI_EVENT_STA_WPS_ER_PIN,           /**&lt; ESP32 station wps pin code in enrollee mode */
+    STA_WPS_ER_PBC_OVERLAP_SIG,     //WIFI_EVENT_STA_WPS_ER_PBC_OVERLAP,   /**&lt; ESP32 station wps overlap in enrollee mode */
+
+    //WIFI_EVENT_AP_START,                 /**&lt; ESP32 soft-AP start */
+    //WIFI_EVENT_AP_STOP,                  /**&lt; ESP32 soft-AP stop */
+    //WIFI_EVENT_AP_STACONNECTED,          /**&lt; a station connected to ESP32 soft-AP */
+    //WIFI_EVENT_AP_STADISCONNECTED,       /**&lt; a station disconnected from ESP32 soft-AP */
+    //WIFI_EVENT_AP_PROBEREQRECVED,        /**&lt; Receive probe request packet in soft-AP interface */
+
+    SCAN_START_SIG,
+    STA_CONNECT_SIG,
+};
+
+Q_DEFINE_THIS_MODULE(&quot;iot_wifi&quot;)
+
+static const char * TAG = &quot;iot_wifi&quot;;
+typedef void (*done_cb)(void);
+
+$declare(iot::wifi::wifi)
+
+static wifi l_wifi;
+static QEvt const * l_wifiQSto[64];
+/* FreeRTOS stack for AO */
+static StackType_t wifiStack[2048];
+
+$define(iot::wifi::AO_iot_wifi)
+$define(iot::wifi::iot_wifi_ctor)
+
+$define(iot::wifi::iot_wifi_scan_ap)
+$define(iot::wifi::iot_wifi_get_ap_count)
+$define(iot::wifi::iot_wifi_get_ap_name_len)
+$define(iot::wifi::iot_wifi_get_ap_name)
+
+$define(iot::wifi::iot_wifi_connect)
+$define(iot::wifi::iot_wifi_has_ip)
+$define(iot::wifi::iot_wifi_get_signal_level)
+
+$define(iot::wifi::wifi_event_handler)
+
+$define(iot::wifi::wifi)
+</text>
+  </file>
+ </directory>
+</package>
