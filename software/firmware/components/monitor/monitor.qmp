@@ -1,7 +1,257 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package name="monitor" stereotype="0x02">
+ <class name="monitor" superclass="qpc::QActive">
+  <attribute name="tickEvt" type="QTimeEvt" visibility="0x02" properties="0x00"/>
+  <attribute name="tickCount" type="uint32_t" visibility="0x02" properties="0x00"/>
+  <statechart properties="0x01">
+   <initial target="../1">
+    <initial_glyph conn="8,2,5,0,6,4">
+     <action box="0,-2,10,2"/>
+    </initial_glyph>
+   </initial>
+   <state name="TOP">
+    <entry>extern uint32_t ulp_solar_bus_voltage;
+extern uint32_t ulp_battery_bus_voltage;
+uint32_t i = 0;
+uint32_t * p = (uint32_t *)(&amp;ulp_solar_bus_voltage);
+/* copy */
+for(i = 0; i &lt; N_SAMPLE; i++) {
+    solar_bus_voltage_V[i] = 0.004f * ((short)p[i] &gt;&gt; 3);
+//    ESP_LOGI(TAG, &quot;pv: %0.3f&quot;, solar_bus_voltage_V[i]);
+}
+/* copy */
+p = (uint32_t *)(&amp;ulp_battery_bus_voltage);
+for(i = 0; i &lt; N_SAMPLE; i++) {
+    battery_bus_voltage_V[i] = 0.004f * ((short)p[i] &gt;&gt; 3);
+//    ESP_LOGI(TAG, &quot;battery: %0.3f&quot;, battery_bus_voltage_V[i]);
+}
+
+/* Arm Timer for auto state transit */
+QTimeEvt_armX(&amp;me-&gt;tickEvt,
+              pdMS_TO_TICKS(50),
+              pdMS_TO_TICKS(50));</entry>
+    <exit>/* Disarm Timer */
+QTimeEvt_disarm(&amp;me-&gt;tickEvt);</exit>
+    <initial target="../1">
+     <initial_glyph conn="14,11,5,0,8,3">
+      <action box="0,-2,10,2"/>
+     </initial_glyph>
+    </initial>
+    <state name="DISCONNECTED">
+     <entry>/* Reset Tick Counter */
+me-&gt;tickCount = 0;
+
+/* Waiting */
+ESP_LOGI(TAG, &quot;waiting for connection...&quot;);</entry>
+     <tran trig="MONITOR_TICK">
+      <action>me-&gt;tickCount++;</action>
+      <choice target="../../../2">
+       <guard brief="ConnectedToBroker">true == iot_mqtt_client_is_connected()</guard>
+       <choice_glyph conn="26,23,5,1,23,13,-2">
+        <action box="2,-2,18,2"/>
+       </choice_glyph>
+      </choice>
+      <choice>
+       <guard>else</guard>
+       <choice_glyph conn="26,23,4,-1,4,8">
+        <action box="1,2,10,2"/>
+       </choice_glyph>
+      </choice>
+      <choice target="../../../3">
+       <guard brief="Timeout">me-&gt;tickCount &gt; 1200</guard>
+       <choice_glyph conn="26,23,4,1,-4,26,31,-5">
+        <action box="2,-6,10,2"/>
+       </choice_glyph>
+      </choice>
+      <tran_glyph conn="12,23,3,-1,14">
+       <action box="0,-2,13,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="12,14,35,15">
+      <entry box="1,2,6,2"/>
+     </state_glyph>
+    </state>
+    <state name="PUBLISHING">
+     <entry>/* Waiting */
+ESP_LOGI(TAG, &quot;...connected&quot;);
+
+/* Reset Tick Counter */
+me-&gt;tickCount = 0;
+
+/* JSON Serialize */
+ESP_LOGI(TAG, &quot;Serialize...&quot;);
+cJSON * root = NULL;
+cJSON * pvArray = NULL;;
+cJSON * batteryArray = NULL;;
+root = cJSON_CreateObject();
+if(NULL == root) {
+    ESP_LOGE(TAG, &quot;Root creation failed!&quot;);
+}
+pvArray = cJSON_CreateFloatArray(solar_bus_voltage_V, N_SAMPLE);
+if(NULL == pvArray) {
+    ESP_LOGE(TAG, &quot;PV object creation failed!&quot;);
+}
+if(!cJSON_AddItemToObject(root, &quot;pv&quot;, pvArray)) {
+    ESP_LOGE(TAG, &quot;PV object add failed!&quot;);
+}
+batteryArray = cJSON_CreateFloatArray(battery_bus_voltage_V, N_SAMPLE);
+if(NULL == batteryArray) {
+    ESP_LOGE(TAG, &quot;battery object creation failed!&quot;);
+}
+if(!cJSON_AddItemToObject(root, &quot;battery&quot;, batteryArray)) {
+    ESP_LOGE(TAG, &quot;battery object add failed!&quot;);
+}
+const char * my_json_string = cJSON_Print(root);
+if(my_json_string != NULL) {
+    ESP_LOGI(TAG, &quot;Publishing...&quot;);
+
+    IoT_Publish_Message_Params paramsQOS0;
+    snprintf(topic_string, sizeof(topic_string) - 1,
+        &quot;%s/monitor&quot;, iot_mqtt_get_client_name());
+    const int TOPIC_LEN = strlen(topic_string);
+    paramsQOS0.qos = QOS0;
+    paramsQOS0.payload = (void *) my_json_string;
+    paramsQOS0.isRetained = 0;
+    paramsQOS0.payloadLen = strlen(my_json_string);
+    if(!iot_mqtt_publish(topic_string, TOPIC_LEN, &amp;paramsQOS0)) {
+        ESP_LOGE(TAG, &quot;iot_mqtt_publish failed!&quot;);
+    }
+    ESP_LOGI(TAG, &quot;topic:%s&quot;, topic_string);
+    ESP_LOGI(TAG, &quot;payload length = %d&quot;, strlen(my_json_string));
+} else {
+    ESP_LOGI(TAG, &quot;Failed on cJSON_Print()!!&quot;);
+}
+/* Delete/Clean-up */
+cJSON_Delete(root);</entry>
+     <exit>ESP_LOGI(TAG, &quot;...Publish done.&quot;);</exit>
+     <tran trig="MONITOR_TICK" target="../../3">
+      <action>me-&gt;tickCount++;</action>
+      <tran_glyph conn="12,38,3,1,37,10,-2">
+       <action box="0,-2,14,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="12,32,35,10">
+      <entry box="1,2,6,2"/>
+      <exit box="1,4,6,2"/>
+     </state_glyph>
+    </state>
+    <state name="SLEEP">
+     <entry>/* Reset Tick Counter */
+me-&gt;tickCount = 0;
+
+/* Disconnect */
+ESP_LOGI(TAG, &quot;disconnecting...&quot;);
+iot_mqtt_disconnect();
+vTaskDelay(pdMS_TO_TICKS(2000));
+
+ESP_LOGI(TAG, &quot;... Deep Sleep&quot;);
+ESP_ERROR_CHECK( esp_sleep_enable_ulp_wakeup() );
+esp_deep_sleep_start();
+</entry>
+     <tran trig="MONITOR_TICK">
+      <action>me-&gt;tickCount++;
+ESP_LOGW(TAG, &quot;Should not reach here!!&quot;);</action>
+      <tran_glyph conn="12,52,3,-1,14">
+       <action box="0,-2,14,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="12,44,35,11">
+      <entry box="1,2,6,2"/>
+     </state_glyph>
+    </state>
+    <state_glyph node="7,6,50,51">
+     <entry box="1,2,6,2"/>
+     <exit box="1,4,6,2"/>
+    </state_glyph>
+   </state>
+   <state_diagram size="68,63"/>
+  </statechart>
+ </class>
+ <attribute name="AO_monitor" type="QActive * const" visibility="0x00" properties="0x00">
+  <code>= &amp;(l_monitor.super);</code>
+ </attribute>
+ <operation name="monitor_ctor" type="void" visibility="0x00" properties="0x00">
+  <code>monitor *me;
+static uint32_t bInitOnce = 0;
+
+if(bInitOnce == 0) {
+    me = &amp;l_monitor;
+
+    /* Init members */
+    me-&gt;tickCount = 0;
+
+    /* Call constructor */
+    QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;monitor_initial));
+    /* Call Timer Constructor */
+    QTimeEvt_ctorX(&amp;me-&gt;tickEvt, &amp;me-&gt;super, MONITOR_TICK_SIG, 0U);
+    /* Defer Queue */
+
+    /* Create AO Task */
+    QActive_setAttr(AO_monitor, TASK_NAME_ATTR, &quot;monitor&quot;);
+    bInitOnce = 1;
+    QACTIVE_START(
+            AO_monitor,                     /* AO to start */
+            AO_PRIORITY_MONITOR,            /* QP priority of the AO */
+            l_monitorQSto,                  /* Event Queue Storage */
+            Q_DIM(l_monitorQSto),           /* Lenght of Event Queue */
+            monitorStack,                   /* Stack storage */
+            sizeof(monitorStack),           /* Size of Stack */
+            (QEvt *)0                       /* Not Used */
+            );
+}
+</code>
+ </operation>
  <directory name=".">
-  <file name="monitor.c"/>
+  <file name="monitor.c">
+   <text>#include &quot;freertos/FreeRTOS.h&quot;
+#include &quot;freertos/task.h&quot;
+#include &quot;esp_sleep.h&quot;
+#include &quot;esp32/ulp.h&quot;
+#include &quot;cJSON.h&quot;
+#include &lt;string.h&gt;
+
+#include &quot;qpc.h&quot;
+#if defined(CONFIG_QPC_QSPY_ENABLE)
+#include &quot;qs.h&quot;
+#endif /* #if defined(CONFIG_QPC_QSPY_ENABLE) */
+
+#include &quot;priorityList.h&quot;
+#include &quot;signalList.h&quot;
+#include &quot;project_def.h&quot;
+#include &quot;monitor.h&quot;
+#include &quot;iot_mqtt_client.h&quot;
+
+enum wifiSignal {
+    MONITOR_TICK_SIG = MAX_SIG,
+};
+
+Q_DEFINE_THIS_MODULE(&quot;monitor&quot;)
+
+static const char * TAG = &quot;monitor&quot;;
+
+#define N_SAMPLE        (CONFIG_ULP_INA219_MAX_SAMPLE)
+
+$declare(monitor::monitor)
+
+static monitor l_monitor;
+static QEvt const * l_monitorQSto[64];
+/* FreeRTOS stack for AO */
+static StackType_t monitorStack[4196];
+
+extern uint32_t ulp_solar_bus_voltage;
+extern uint32_t ulp_battery_bus_voltage;
+
+static char topic_string[64];
+static float solar_bus_voltage_V[N_SAMPLE];
+static float battery_bus_voltage_V[N_SAMPLE];
+
+$define(monitor::AO_monitor)
+$define(monitor::monitor_ctor)
+
+
+$define(monitor::monitor)
+</text>
+  </file>
   <file name="monitor.h">
    <text>/*!
  * \file monitor.h
@@ -10,6 +260,8 @@
 #ifndef COMPONENTS_MONITOR_MONITOR_H
 #define COMPONENTS_MONITOR_MONITOR_H
 
+$declare(monitor::AO_monitor)
+$declare(monitor::monitor_ctor)
 
 #endif /* COMPONENTS_MONITOR_MONITOR_H */</text>
   </file>

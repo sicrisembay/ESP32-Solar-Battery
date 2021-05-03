@@ -9,6 +9,7 @@
 #include "driver/uart.h"
 #endif
 #include "iot.h"
+#include "monitor.h"
 
 #if defined(CONFIG_QPC_QSPY_ENABLE)
 static uint8_t qsTxBuf[CONFIG_QPC_QSPY_TX_SIZE];
@@ -24,7 +25,8 @@ static const char *QSPY_TAG = "qspy";
 
 void QF_onStartup(void)
 {
-	iot_ctor();
+    iot_ctor();
+    monitor_ctor();
 }
 
 IRAM_ATTR void Q_onAssert(char_t const * const module, int_t location)

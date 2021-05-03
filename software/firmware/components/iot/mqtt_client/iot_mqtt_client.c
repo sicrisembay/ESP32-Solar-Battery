@@ -82,10 +82,11 @@ typedef struct {
 
     /*
      * Client Unique name
-     * Format: "Dispenser000000000000"
+     * Format: "Device000000000000"
      * Suffix is derived from MAC address
      */
     char clientName[24];
+    bool isConnected;
 } mqtt_client;
 
 /* private: */
@@ -129,9 +130,10 @@ void iot_mqtt_client_ctor(void) {
         me = &l_mqtt_client;
 
         me->hostAddress = NULL;
-        me->port = 8883;
+        me->port = DEFAULT_HOST_PORT;
         me->mqttInitParams = iotClientInitParamsDefault;
         me->connectParams = iotClientConnectParamsDefault;
+        me->isConnected = false;
 
         /* Call constructor */
         QActive_ctor(&me->super, Q_STATE_CAST(&mqtt_client_initial));
@@ -154,18 +156,49 @@ void iot_mqtt_client_ctor(void) {
 
 }
 /*$enddef${iot::mqtt_client::iot_mqtt_client_ctor} ^^^^^^^^^^^^^^^^^^^^^^^^^*/
+/*$define${iot::mqtt_client::iot_mqtt_client_is_connected} vvvvvvvvvvvvvvvvv*/
+/*${iot::mqtt_client::iot_mqtt_client_is_connected} ........................*/
+bool iot_mqtt_client_is_connected(void) {
+    mqtt_client * me = &l_mqtt_client;
+
+    return(aws_iot_mqtt_is_client_connected(&me->client));
+
+}
+/*$enddef${iot::mqtt_client::iot_mqtt_client_is_connected} ^^^^^^^^^^^^^^^^^*/
 /*$define${iot::mqtt_client::iot_mqtt_publish} vvvvvvvvvvvvvvvvvvvvvvvvvvvvv*/
 /*${iot::mqtt_client::iot_mqtt_publish} ....................................*/
-void iot_mqtt_publish(
+bool iot_mqtt_publish(
     const char * topic,
     uint16_t topic_len,
     IoT_Publish_Message_Params * pubParam)
 {
     mqtt_client * me = &l_mqtt_client;
-
-    aws_iot_mqtt_publish(&(me->client), topic, topic_len, pubParam);
+    IoT_Error_t iot_ret = aws_iot_mqtt_publish(&(me->client), topic, topic_len, pubParam);
+    if(iot_ret != SUCCESS) {
+        ESP_LOGE(TAG, "aws_iot_mqtt_publish failed (err: %d)", iot_ret);
+    }
+    return(SUCCESS == iot_ret);
 }
 /*$enddef${iot::mqtt_client::iot_mqtt_publish} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
+/*$define${iot::mqtt_client::iot_mqtt_disconnect} vvvvvvvvvvvvvvvvvvvvvvvvvv*/
+/*${iot::mqtt_client::iot_mqtt_disconnect} .................................*/
+bool iot_mqtt_disconnect(void) {
+    mqtt_client * me = &l_mqtt_client;
+    IoT_Error_t iot_ret = aws_iot_mqtt_disconnect(&me->client);
+    if(iot_ret != SUCCESS) {
+        ESP_LOGE(TAG, "aws_iot_mqtt_disconnect failed (err: %d)", iot_ret);
+    }
+    return(SUCCESS == iot_ret);
+}
+/*$enddef${iot::mqtt_client::iot_mqtt_disconnect} ^^^^^^^^^^^^^^^^^^^^^^^^^^*/
+/*$define${iot::mqtt_client::iot_mqtt_get_client_name} vvvvvvvvvvvvvvvvvvvvv*/
+/*${iot::mqtt_client::iot_mqtt_get_client_name} ............................*/
+char * iot_mqtt_get_client_name(void) {
+    mqtt_client * me = &l_mqtt_client;
+
+    return(me->clientName);
+}
+/*$enddef${iot::mqtt_client::iot_mqtt_get_client_name} ^^^^^^^^^^^^^^^^^^^^^*/
 
 /*$define${iot::mqtt_client::disconnect_handler} vvvvvvvvvvvvvvvvvvvvvvvvvvv*/
 /*${iot::mqtt_client::disconnect_handler} ..................................*/
@@ -591,6 +624,7 @@ static QState mqtt_client_CONNECTED(mqtt_client * const me, QEvt const * const e
         /*${iot::mqtt_client::mqtt_client::SM::TOP::CONNECTED} */
         case Q_ENTRY_SIG: {
             ESP_LOGI(TAG, "state: CONNECTED");
+            me->isConnected = true;
 
             IoT_Error_t ret = aws_iot_mqtt_autoreconnect_set_status(&(me->client), true);
             if(SUCCESS != ret) {

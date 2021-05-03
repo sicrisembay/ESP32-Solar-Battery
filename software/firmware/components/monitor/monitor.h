@@ -23,5 +23,12 @@
 #ifndef COMPONENTS_MONITOR_MONITOR_H
 #define COMPONENTS_MONITOR_MONITOR_H
 
+/*$declare${monitor::AO_monitor} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv*/
+extern QActive * const AO_monitor;
+/*$enddecl${monitor::AO_monitor} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
+/*$declare${monitor::monitor_ctor} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv*/
+/*${monitor::monitor_ctor} .................................................*/
+void monitor_ctor(void);
+/*$enddecl${monitor::monitor_ctor} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
 
 #endif /* COMPONENTS_MONITOR_MONITOR_H */

@@ -1,0 +1,6 @@
+// ignore symbolic link files
+i2c.S
+m_routine.S
+m_stack.S
+wake_up.S
+ina219.S

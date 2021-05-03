@@ -5,4 +5,12 @@ source "$(ESP32_SENSOR_PATH)/Kconfig"
 source "$(ULP_SENSOR_PATH)/Kconfig"
 endmenu # "Sensor Configuration"
 
+config ULP_INA219_SAMPLE_INTERVAL
+    int "INA219 sample interval (unit: second)"
+    default 10
+
+config ULP_INA219_MAX_SAMPLE
+    int "Number of INA219 samples before waking main core"
+    default 60
+
 endmenu # "Project Configuration"

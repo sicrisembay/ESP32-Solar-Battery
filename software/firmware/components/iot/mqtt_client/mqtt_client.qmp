@@ -15,10 +15,11 @@
   <attribute name="clientName[24]" type="char" visibility="0x02" properties="0x00">
    <documentation>/*
  * Client Unique name
- * Format: &quot;Dispenser000000000000&quot;
+ * Format: &quot;Device000000000000&quot;
  * Suffix is derived from MAC address
  */</documentation>
   </attribute>
+  <attribute name="isConnected" type="bool" visibility="0x02" properties="0x00"/>
   <operation name="nvs_read" type="esp_err_t" visibility="0x02" properties="0x00">
    <code>char * hostAddress = NULL;
 char * root_ca = NULL;
@@ -377,6 +378,7 @@ QTimeEvt_disarm(&amp;me-&gt;tickEvt);</exit>
     </state>
     <state name="CONNECTED">
      <entry>ESP_LOGI(TAG, &quot;state: CONNECTED&quot;);
+me-&gt;isConnected = true;
 
 IoT_Error_t ret = aws_iot_mqtt_autoreconnect_set_status(&amp;(me-&gt;client), true);
 if(SUCCESS != ret) {
@@ -403,9 +405,10 @@ if(bInitOnce == 0) {
     me = &amp;l_mqtt_client;
 
     me-&gt;hostAddress = NULL;
-    me-&gt;port = 8883;
+    me-&gt;port = DEFAULT_HOST_PORT;
     me-&gt;mqttInitParams = iotClientInitParamsDefault;
     me-&gt;connectParams = iotClientConnectParamsDefault;
+    me-&gt;isConnected = false;
 
     /* Call constructor */
     QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;mqtt_client_initial));
@@ -427,14 +430,35 @@ if(bInitOnce == 0) {
 }
 </code>
  </operation>
- <operation name="iot_mqtt_client_is_connected" type="bool" visibility="0x00" properties="0x00"/>
- <operation name="iot_mqtt_publish" type="void" visibility="0x00" properties="0x00">
+ <operation name="iot_mqtt_client_is_connected" type="bool" visibility="0x00" properties="0x00">
+  <code>mqtt_client * me = &amp;l_mqtt_client;
+
+return(aws_iot_mqtt_is_client_connected(&amp;me-&gt;client));
+</code>
+ </operation>
+ <operation name="iot_mqtt_publish" type="bool" visibility="0x00" properties="0x00">
   <parameter name="topic" type="const char *"/>
   <parameter name="topic_len" type="uint16_t"/>
   <parameter name="pubParam" type="IoT_Publish_Message_Params *"/>
   <code>mqtt_client * me = &amp;l_mqtt_client;
+IoT_Error_t iot_ret = aws_iot_mqtt_publish(&amp;(me-&gt;client), topic, topic_len, pubParam);
+if(iot_ret != SUCCESS) {
+    ESP_LOGE(TAG, &quot;aws_iot_mqtt_publish failed (err: %d)&quot;, iot_ret);
+}
+return(SUCCESS == iot_ret);</code>
+ </operation>
+ <operation name="iot_mqtt_disconnect" type="bool" visibility="0x00" properties="0x00">
+  <code>mqtt_client * me = &amp;l_mqtt_client;
+IoT_Error_t iot_ret = aws_iot_mqtt_disconnect(&amp;me-&gt;client);
+if(iot_ret != SUCCESS) {
+    ESP_LOGE(TAG, &quot;aws_iot_mqtt_disconnect failed (err: %d)&quot;, iot_ret);
+}
+return(SUCCESS == iot_ret);</code>
+ </operation>
+ <operation name="iot_mqtt_get_client_name" type="char *" visibility="0x00" properties="0x00">
+  <code>mqtt_client * me = &amp;l_mqtt_client;
 
-aws_iot_mqtt_publish(&amp;(me-&gt;client), topic, topic_len, pubParam);</code>
+return(me-&gt;clientName);</code>
  </operation>
  <operation name="disconnect_handler" type="void" visibility="0x02" properties="0x00">
   <parameter name="pClient" type="AWS_IoT_Client *"/>
@@ -449,7 +473,10 @@ aws_iot_mqtt_publish(&amp;(me-&gt;client), topic, topic_len, pubParam);</code>
 
 $declare(iot::mqtt_client::AO_iot_mqtt_client})
 $declare(iot::mqtt_client::iot_mqtt_client_ctor)
+$declare(iot::mqtt_client::iot_mqtt_client_is_connected)
 $declare(iot::mqtt_client::iot_mqtt_publish)
+$declare(iot::mqtt_client::iot_mqtt_disconnect)
+$declare(iot::mqtt_client::iot_mqtt_get_client_name)
 
 #endif /* _IOT_MQTT_CLIENT_H_ */</text>
   </file>
@@ -508,7 +535,10 @@ static StackType_t mqttClientStack[8196];
 
 $define(iot::mqtt_client::AO_iot_mqtt_client})
 $define(iot::mqtt_client::iot_mqtt_client_ctor)
+$define(iot::mqtt_client::iot_mqtt_client_is_connected)
 $define(iot::mqtt_client::iot_mqtt_publish)
+$define(iot::mqtt_client::iot_mqtt_disconnect)
+$define(iot::mqtt_client::iot_mqtt_get_client_name)
 
 $define(iot::mqtt_client::disconnect_handler)
 
