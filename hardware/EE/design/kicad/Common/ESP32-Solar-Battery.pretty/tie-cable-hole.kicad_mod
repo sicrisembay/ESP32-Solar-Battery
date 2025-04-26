@@ -1,0 +1,79 @@
+(footprint "tie-cable-hole"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 0.5 -2 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "900d74e8-c30b-41ae-b03d-7c9a53fe9cdb")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+		)
+	)
+	(property "Value" "tie-cable-hole"
+		(at 0 2 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "66eea8bd-6790-4659-bdf3-02ce40e40b74")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "465d9b4f-cbc3-49c8-b5c1-becf07964acd")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "1923837b-1dc2-4ad9-89a3-eaa85b9e34fb")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_text user "${REFERENCE}"
+		(at 0 3.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "fda4c443-e9df-45fc-98bf-036cad7bd741")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "" np_thru_hole roundrect
+		(at 0 0)
+		(size 10 3.8)
+		(drill oval 10 3.9)
+		(layers)
+		(roundrect_rratio 0.15)
+		(thermal_bridge_angle 45)
+		(uuid "395454b8-d677-4878-bc9a-5376d0e60c21")
+	)
+	(embedded_fonts no)
+)
