@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "ESP32-Solar-Battery")(type "KiCad")(uri "D:/01_work/03_workspace/01_git/ESP32-Solar-Battery/hardware/EE/design/kicad/Common/ESP32-Solar-Battery.kicad_sym")(options "")(descr ""))
+)
