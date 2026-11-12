@@ -6093,8 +6093,9 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "MPN: CL21A106KAYNNNE (10 uF, 25 V, X5R, 0805)"
 			(at 52.07 48.26 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6173,8 +6174,9 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "MPN: CL10B104KB8NNNC (0.1 uF, 50 V, X7R, 0603)"
 			(at 63.5 48.26 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6912,8 +6914,9 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "MPN: CL10B104KB8NNNC (0.1 uF, 50 V, X7R, 0603)"
 			(at 36.83 119.38 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7696,8 +7699,9 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "MPN: CL10B224KA8NNNC (0.22 uF, 25 V, X7R, 0603)"
 			(at 138.43 92.71 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7776,8 +7780,9 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "MPN: CL10B104KB8NNNC (0.1 uF, 50 V, X7R, 0603)"
 			(at 134.874 51.816 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8172,8 +8177,9 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "MPN: CL31A226KAHNNNE (22 uF, 25 V, X5R, 1206)"
 			(at 171.45 86.36 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8252,8 +8258,9 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "MPN: CL21A106KAYNNNE (10 uF, 25 V, X5R, 0805)"
 			(at 182.88 86.36 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8715,8 +8722,9 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "MPN: CL10B104KB8NNNC (0.1 uF, 50 V, X7R, 0603)"
 			(at 258.318 45.466 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9727,7 +9735,7 @@
 				)
 			)
 		)
-		(property "Value" "HY2112"
+		(property "Value" "HY2112-HB"
 			(at 226.822 112.776 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9759,7 +9767,7 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "MPN: HY2112-HB (VCU 3.65 V, VCR 3.45 V, VDL 2.50 V, VDR 3.00 V, VDIP 200 mV, VCIP -250 mV)"
 			(at 226.822 114.554 0)
 			(hide yes)
 			(show_name no)
@@ -10110,7 +10118,7 @@
 				)
 			)
 		)
-		(property "Description" "MPN: VT1V470M0605 (LCSC: C22383776)"
+		(property "Description" "MPN: VT1V470M0605 (LCSC: C22383776) (47 uF, 35 V, electrolytic)"
 			(at 160.02 86.36 0)
 			(hide yes)
 			(show_name no)
@@ -10158,7 +10166,7 @@
 				)
 			)
 		)
-		(property "Value" "IRLR8726TRLPBF-HXY"
+		(property "Value" "2060A"
 			(at 243.078 151.13 90)
 			(hide yes)
 			(show_name no)
@@ -10191,7 +10199,7 @@
 				)
 			)
 		)
-		(property "Description" "MPN: IRLR8726TRLPBF-HXY (LCSC: C6285779)"
+		(property "Description" "MPN: FM 2060A (N MOS) (LCSC: C2932009), 20 V, RDS(on) < 8.6 mOhm @ VGS=2.5 V"
 			(at 243.078 141.986 0)
 			(hide yes)
 			(show_name no)
@@ -10357,7 +10365,7 @@
 				)
 			)
 		)
-		(property "Description" "MPN: VT1V470M0605 (LCSC: C22383776)"
+		(property "Description" "MPN: VT1V470M0605 (LCSC: C22383776) (47 uF, 35 V, electrolytic)"
 			(at 40.64 48.26 0)
 			(hide yes)
 			(show_name no)
@@ -10637,7 +10645,7 @@
 				)
 			)
 		)
-		(property "Value" "IRLR8726TRLPBF-HXY"
+		(property "Value" "2060A"
 			(at 226.822 151.13 90)
 			(hide yes)
 			(show_name no)
@@ -10670,7 +10678,7 @@
 				)
 			)
 		)
-		(property "Description" "MPN: IRLR8726TRLPBF-HXY (LCSC: C6285779)"
+		(property "Description" "MPN: FM 2060A (N MOS) (LCSC: C2932009), 20 V, RDS(on) < 8.6 mOhm @ VGS=2.5 V"
 			(at 226.822 141.986 0)
 			(hide yes)
 			(show_name no)
@@ -10835,7 +10843,7 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "MPN: CL10B104KB8NNNC (0.1 uF, 50 V, X7R, 0603)"
 			(at 244.094 119.888 0)
 			(hide yes)
 			(show_name no)
@@ -10992,8 +11000,9 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "MPN: CL10B104KB8NNNC (0.1 uF, 50 V, X7R, 0603)"
 			(at 120.65 162.56 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -11155,8 +11164,9 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "MPN: CL10B104KB8NNNC (0.1 uF, 50 V, X7R, 0603)"
 			(at 156.21 151.13 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects

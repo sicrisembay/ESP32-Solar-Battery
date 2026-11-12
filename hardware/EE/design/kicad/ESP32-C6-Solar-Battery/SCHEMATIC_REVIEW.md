@@ -64,7 +64,21 @@ LiFePO4 must not be charged below about 0 °C, which matters for an outdoor sola
 
 The HY2112 drives the gates at battery voltage, about 2.1–3.6 V. The IRLR8726's gate threshold can be as high as 2.35 V, and its on-resistance is only specified at ≥4.5 V. Near empty the FETs may barely turn on. The HY2112 also senses overcurrent through the FETs' on-resistance, so its trip point will drift.
 
-**Fix:** use FETs specified at 2.5 V gate drive (e.g., an FS8205A-type dual or a low-threshold 20 V part).
+**Fix:** use FETs specified at 2.5 V gate drive, such as a low-threshold 20 V part. An FS8205A-type dual is **not** suitable at 3 A: its two FETs in series (50–85 mΩ) drop about 150–255 mV, which reaches the HY2112's charge-overcurrent trip.
+
+**Status: ✅ Resolved in the schematic.** Q204/Q205 were replaced with the **FM 2060A** (LCSC C2932009, TO-252, so the footprint is unchanged):
+
+| Max voltage | Max on-resistance at 4.5 V gate | Max on-resistance at 2.5 V gate | Gate threshold |
+|---|---|---|---|
+| 20 V | 6.5 mΩ | 8.6 mΩ | about 1 V |
+
+With both FETs in series (about 17 mΩ cold, about 24 mΩ hot) and the HY2112-HB:
+
+- **3 A charge:** about 50–70 mV across the FETs, well below the HY2112's charge-overcurrent trip (220 mV minimum). Power loss is about 0.15–0.2 W in total.
+- **Discharge:** the HY2112's discharge-overcurrent trip works out to about 8–18 A and the short-circuit trip to about 23 A or more. Both are above F201 (7 A), so the fuse is the effective overcurrent protection, the same as with the IRLR8726.
+
+- [x] **Check the pinout.** ✅ The 2060A datasheet's "Marking and pin Assignment" drawing (top view, tab up) shows G on the left lead, D on the middle lead and tab, and S on the right lead. This matches the `Q_NMOS_GDS` symbol (1 = G, 2 = D, 3 = S) and the `TO-252-2` footprint (pad 1 = left lead, pad 2 = tab, pad 3 = right lead). The PCB nets are correct: Q204 and Q205 share drain net `Net-(Q204-D)`, Q204's source goes to J203 and Q205's source to GND.
+- [x] **Update the PCB from the schematic.** ✅ Q204/Q205 on the PCB now show `2060A`.
 
 ### 5. The HY2112 variant isn't specified
 
@@ -76,6 +90,19 @@ The value is just "HY2112", but the variants range from 3.65 to 3.90 V overcharg
 |---|---|---|---|---|
 | 3.75 V | 3.60 V | 2.10 V | 2.30 V | 150 mV |
 
+**Status: ✅ Resolved (HY2112-HB chosen).** U204 is now specified as **HY2112-HB** (value and description updated in the schematic):
+
+| Overcharge trip | Overcharge release | Overdischarge trip | Overdischarge release | Discharge overcurrent trip | Charge overcurrent trip |
+|---|---|---|---|---|---|
+| 3.65 V ±25 mV | 3.45 V | 2.50 V | 3.00 V | 200 mV | −250 mV |
+
+The HB was chosen over the BB because its higher overdischarge cutoff suits the ESP32 load better:
+
+- **Issue 6:** cuts off at 2.5 V and reconnects at 3.0 V, so the ESP32's out-of-spec window shrinks to 2.5–3.0 V and it doesn't keep restarting near empty. It is also gentler on the cell.
+- **Issue 4:** the higher thresholds (200 mV discharge, −250 mV charge) leave more room for the FETs' on-resistance.
+
+- [ ] **Accepted risk: thin overcharge margin.** The 3.625–3.675 V trip window can overlap the CN3801's 3.564–3.636 V charge voltage by about 11 mV in the worst case. The result would only be a nuisance cutoff at end of charge (it resumes at 3.45 V), not a safety issue. If this is seen on the bench, switch to the **HY2112-CB** (3.75 V trip, 200 mV / −200 mV), which would give up the 2.5 V/3.0 V cutoff.
+
 ### 6. The ESP32-C6 and INA219 run directly from the battery
 
 The ESP32-C6 needs 3.0–3.6 V and the INA219 needs 3.0–5.5 V, but the HY2112 only cuts off at about 2.1 V. Between 2.1 and 3.0 V both are out of spec, and the ESP32 will brown out and reset repeatedly.
@@ -86,7 +113,26 @@ The ESP32-C6 needs 3.0–3.6 V and the INA219 needs 3.0–5.5 V, but the HY2112 
 
 - [ ] **L201 runs hot at 3 A.** The part is ZD1050-470M on a Sunlord MWSA1005S footprint. Equivalent 47 µH 10×10 mm parts are rated about 3.2 A RMS / 4 A saturation with about 127 mΩ resistance, which means about 1.1 W of loss at 3 A. The ZD1050 datasheet couldn't be found, so check its ratings, choose a lower-resistance part, or reduce the charge current. At 6 V the board will rarely reach 3 A anyway.
 - [ ] **D206 (series Schottky) is needed** to stop the battery feeding back to the panel through Q201's internal diode. It does cost about 1 W at 3 A.
-- [ ] **C203, C209 and C210 have no voltage rating.** C202 and C208 (VT1V470M0605) are 35 V, which is fine. Specify the ceramics at ≥25 V for the input side, and allow for capacitance loss under voltage on the 10 µF 0805.
+- [x] **The capacitors had no voltage rating.** ✅ Every capacitor's description now includes an MPN and a voltage rating. C203 is the only one of C203/C209/C210 on the solar input; C209 and C210 are on the battery rail.
+
+  | Ref | Value / size | Connected between | Max voltage | Part (rating) |
+  |---|---|---|---|---|
+  | C201, C204 | 0.1 µF 0603 | Solar_V+ – GND | 7.5 V (22 V with a 12 V panel) | CL10B104KB8NNNC (50 V X7R) |
+  | C203 | 10 µF 0805 | Solar_V+ – GND | 7.5 V (22 V with a 12 V panel) | CL21A106KAYNNNE (25 V X5R); keeps about 50–60 % of its capacitance at 7 V |
+  | C202 | 47 µF electrolytic | Solar_V+ – GND | 7.5 V | VT1V470M0605 (35 V) |
+  | C206 | 0.1 µF 0603 | CN3801 VCC – VG | 8 V or less (VG–VCC abs. max −8 V) | CL10B104KB8NNNC (50 V X7R) |
+  | C205 | 0.1 µF 0603 | INA219 IN+ – IN− | under 0.1 V | CL10B104KB8NNNC (50 V X7R) |
+  | C207 | 0.22 µF 0603 | CN3801 COM – GND | under 6.5 V | CL10B224KA8NNNC (25 V X7R) |
+  | C208 | 47 µF electrolytic | battery rail – GND | 3.7 V | VT1V470M0605 (35 V) |
+  | C209 | 22 µF 1206 | battery rail – GND | 3.7 V | CL31A226KAHNNNE (25 V X5R) |
+  | C210 | 10 µF 0805 | battery rail – GND | 3.7 V | CL21A106KAYNNNE (25 V X5R) |
+  | C211 | 0.1 µF 0603 | HY2112 VDD – battery negative | 3.75 V | CL10B104KB8NNNC (50 V X7R) |
+  | C212, C213 | 0.1 µF 0603 | battery rail – GND | 3.7 V | CL10B104KB8NNNC (50 V X7R) |
+
+  The 25 V rating on C209/C210 is more than the battery rail needs (16 V would do). It was chosen so C203 and C210 can share one part number.
+
+  - [ ] Check the Samsung MPNs against LCSC/JLC stock and add the LCSC numbers.
+  - [ ] Run **Update PCB from Schematic** so the PCB footprints pick up the new descriptions.
 - [ ] **D202 leakage:** an SD103AW leaks a few µA when hot, and that current goes into the MPPT node and shifts the panel set point slightly. A low-leakage diode (e.g., BAS116) would also work.
 - [ ] **No reverse-polarity protection** on the solar (J201) or battery (J203) input. The keyed VH connectors make this low risk.
 - [ ] **The ESP32 can't see charge status.** `~CHRG` and `~DONE` only drive LEDs; routing them to J205 is cheap.

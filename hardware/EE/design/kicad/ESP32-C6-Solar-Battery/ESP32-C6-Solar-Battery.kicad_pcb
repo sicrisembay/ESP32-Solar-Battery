@@ -700,16 +700,16 @@
 			)
 		)
 	)
-	(footprint "TestPoint:TestPoint_THTPad_D3.0mm_Drill1.5mm"
+	(footprint "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm"
 		(locked yes)
 		(layer "F.Cu")
 		(uuid "452dcea3-a7d1-44b1-bf5b-f308825f5a87")
 		(at 126 102)
-		(descr "THT pad as test Point, diameter 3.0mm, hole diameter 1.5mm")
+		(descr "THT pad as test Point, diameter 1.5mm, hole diameter 0.7mm")
 		(tags "test point THT pad")
 		(property "Reference" "TP201"
-			(at 0 -2.398 0)
-			(layer "F.Fab")
+			(at 0 -1.648 0)
+			(layer "F.SilkS")
 			(uuid "801ec45d-f3cd-4cc0-836e-279fd943ba89")
 			(effects
 				(font
@@ -719,15 +719,14 @@
 			)
 		)
 		(property "Value" "B+"
-			(at 4.2 0 0)
-			(layer "B.SilkS")
+			(at 0 1.75 0)
+			(layer "F.Fab")
 			(uuid "82e4e595-15bc-49d4-a5d5-8556f4de1622")
 			(effects
 				(font
-					(size 2 2)
-					(thickness 0.2)
+					(size 1 1)
+					(thickness 0.15)
 				)
-				(justify mirror)
 			)
 		)
 		(property "Datasheet" ""
@@ -766,11 +765,10 @@
 				(pins "1")
 			)
 		)
-		(attr dnp)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_circle
 			(center 0 0)
-			(end 0 1.75)
+			(end 0 0.95)
 			(stroke
 				(width 0.12)
 				(type solid)
@@ -781,7 +779,7 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 2 0)
+			(end 1.25 0)
 			(stroke
 				(width 0.05)
 				(type solid)
@@ -791,7 +789,7 @@
 			(uuid "4a20480f-9138-496f-a45e-9939a6d9452d")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 -2.4 0)
+			(at 0 -1.65 0)
 			(layer "F.Fab")
 			(uuid "7947c352-a2ee-482d-afa3-b8026feb4609")
 			(effects
@@ -803,8 +801,8 @@
 		)
 		(pad "1" thru_hole circle
 			(at 0 0)
-			(size 3 3)
-			(drill 1.5)
+			(size 1.5 1.5)
+			(drill 0.7)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
 			(net "Net-(J203-Pin_2)")
@@ -2467,16 +2465,16 @@
 			)
 		)
 	)
-	(footprint "TestPoint:TestPoint_THTPad_D2.5mm_Drill1.2mm"
+	(footprint "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm"
 		(locked yes)
 		(layer "F.Cu")
 		(uuid "a8ffb4ca-cbcf-4c2f-b7c2-aa2f8f0c14b0")
 		(at 126 174)
-		(descr "THT pad as test Point, diameter 2.5mm, hole diameter 1.2mm ")
+		(descr "THT pad as test Point, diameter 1.5mm, hole diameter 0.7mm")
 		(tags "test point THT pad")
 		(property "Reference" "TP202"
-			(at 0 -2.148 0)
-			(layer "F.Fab")
+			(at 0 -1.648 0)
+			(layer "F.SilkS")
 			(uuid "f82e3af3-27a4-46e5-aa01-4453858dd1ca")
 			(effects
 				(font
@@ -2486,15 +2484,14 @@
 			)
 		)
 		(property "Value" "B-"
-			(at -4.15 0 0)
-			(layer "B.SilkS")
+			(at 0 1.75 0)
+			(layer "F.Fab")
 			(uuid "ef105e8a-5749-482d-86a6-bf7606b2d660")
 			(effects
 				(font
-					(size 2 2)
-					(thickness 0.2)
+					(size 1 1)
+					(thickness 0.15)
 				)
-				(justify mirror)
 			)
 		)
 		(property "Datasheet" ""
@@ -2533,11 +2530,10 @@
 				(pins "1")
 			)
 		)
-		(attr dnp)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_circle
 			(center 0 0)
-			(end 0 1.45)
+			(end 0 0.95)
 			(stroke
 				(width 0.12)
 				(type solid)
@@ -2548,7 +2544,7 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.75 0)
+			(end 1.25 0)
 			(stroke
 				(width 0.05)
 				(type solid)
@@ -2558,7 +2554,7 @@
 			(uuid "e6931305-4539-4c58-a657-1b3556b8e3ec")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 -2.15 0)
+			(at 0 -1.65 0)
 			(layer "F.Fab")
 			(uuid "b29940a1-8e5e-4d6c-b43e-5e092dc58744")
 			(effects
@@ -2570,8 +2566,8 @@
 		)
 		(pad "1" thru_hole circle
 			(at 0 0)
-			(size 2.5 2.5)
-			(drill 1.2)
+			(size 1.5 1.5)
+			(drill 0.7)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
 			(net "Net-(J203-Pin_1)")
@@ -8542,7 +8538,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "IRLR8726TRLPBF-HXY"
+		(property "Value" "2060A"
 			(at 0 -4.5 90)
 			(layer "B.Fab")
 			(uuid "8de72e5e-2135-41d5-a97f-1a115ea1228f")
@@ -8567,7 +8563,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Description" "MPN: IRLR8726TRLPBF-HXY (LCSC: C6285779)"
+		(property "Description" "MPN: FM 2060A (N MOS) (LCSC: C2932009), 20 V, RDS(on) < 8.6 mOhm @ VGS=2.5 V"
 			(at 0 0 90)
 			(layer "B.Fab")
 			(hide yes)
@@ -9912,7 +9908,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "IRLR8726TRLPBF-HXY"
+		(property "Value" "2060A"
 			(at 0 -4.5 90)
 			(layer "B.Fab")
 			(uuid "73606137-fe2e-4ea7-a5f0-e06c3b6f9b5e")
@@ -9937,7 +9933,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Description" "MPN: IRLR8726TRLPBF-HXY (LCSC: C6285779)"
+		(property "Description" "MPN: FM 2060A (N MOS) (LCSC: C2932009), 20 V, RDS(on) < 8.6 mOhm @ VGS=2.5 V"
 			(at 0 0 90)
 			(layer "B.Fab")
 			(hide yes)
@@ -12389,7 +12385,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "HY2112"
+		(property "Value" "HY2112-HB"
 			(at 0 -2.9 0)
 			(layer "B.Fab")
 			(uuid "28bf312c-1b3c-422e-a491-b53ae7a8f07c")
@@ -12415,7 +12411,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "MPN: HY2112-HB (VCU 3.65 V, VCR 3.45 V, VDL 2.50 V, VDR 3.00 V, VDIP 200 mV, VCIP -250 mV)"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "B.Fab")
